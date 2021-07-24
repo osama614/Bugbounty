@@ -150,8 +150,8 @@ class Hacker(models.Model):
         verbose_name_plural = _('Hackers')
 
 
-    #def __str__(self):
-       #return self.account.username
+    def __str__(self):
+       return self.account.username
 
 @receiver(post_save, sender=user)
 def create_user_profile(sender, instance, created, **kwargs):

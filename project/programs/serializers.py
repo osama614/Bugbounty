@@ -24,13 +24,13 @@ class ReportLevelSerializer(serializers.Serializer):
 class HackerDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = Hacker
-        fields = ["avatar"]
+        fields = ("avater",)
 
 class HackerSerializer2(serializers.ModelSerializer):
-    hacker = HackerDataSerializer()
+    account = HackerDataSerializer()
     class Meta:
         model = User
-        fields = ["id", "username", "hacker"]
+        fields = ("id",'first_name', "account")
 
 
 
