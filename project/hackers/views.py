@@ -12,9 +12,11 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from .serializers import DashHackerSerializer, DashUserSerializer, DashFilterSerializer, ActivitySerializer, ThankerSerializer, ProgramSerializer, ProfileSerializer
 from programs.models import Level, Program
+from programs.serializers import ProgramSerializer1
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
+
 
 User = get_user_model()
 # Create your views here.
@@ -120,7 +122,7 @@ class ReportsActivity(GenericAPIView):
 class ProgramsListView (ListAPIView):
 
     queryset = Program.objects.all()
-    serializer_class = ProgramSerializer
+    serializer_class = ProgramSerializer1
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['program_assets__type', 'status']
     search_fields = ['company_name', 'summery']

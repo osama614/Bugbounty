@@ -1,4 +1,4 @@
-from programs.models import Level, Program, Asset
+from programs.models import Level, Program, Asset, BountyBar
 from phonenumber_field.serializerfields import PhoneNumberField
 from phonenumber_field.validators import ValidationError
 #from django.conf import settings
@@ -11,11 +11,17 @@ from drf_writable_nested.serializers import WritableNestedModelSerializer
 
 User = get_user_model()
 
-class ProgramSerializer(serializers.ModelSerializer):
+class BountyBarSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BountyBar
+        fields = ["level", "amount"]
 
+class ProgramSerializer1(serializers.ModelSerializer):
+    bounty_bars = BountyBarSerializer(many=True)
     class Meta:
         model = Program
-        fields = ["logo", "company_name", "summery", "launch_date", "url", "payings", "balance"]
+        fields = ["logo", "company_name", "summery", "launch_date", "url", "bounty_bars"]
+        depth = 1
 
 class ReportLevelSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=60)
@@ -41,7 +47,7 @@ class LevelSerializer(serializers.ModelSerializer):
 
 class ProActivitySerializer(serializers.ModelSerializer):
     owner = HackerSerializer2()
-    reported_to = ProgramSerializer()
+    reported_to = ProgramSerializer1()
     level = LevelSerializer()
     class Meta:
         model = Report

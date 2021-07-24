@@ -10,7 +10,7 @@ from users.permissions import IsVerified
 from rest_framework.permissions import IsAuthenticated
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from .serializers import ProgramSerializer, ReportLevelSerializer, ProActivitySerializer, AssetSerializer, ReportStateSerializer
+from .serializers import ProgramSerializer1, ReportLevelSerializer, ProActivitySerializer, AssetSerializer, ReportStateSerializer
 from .models import Level, Program, Asset
 from django.db.models import Q
 
@@ -22,14 +22,14 @@ class ProgramInfoView(GenericAPIView):
     """
     This API Is used to return the program Information.
     """
-    serializer_class = ProgramSerializer
+    serializer_class = ProgramSerializer1
     def get(self, request):
         #user = User.objects.get(username="osama")
         user = request.user
         program = user.program
         #programs = Program.objects.filter(thanked_hackers__account=user).all()
 
-        ser = ProgramSerializer(program)
+        ser = ProgramSerializer1(program)
         return Response(ser.data, status=status.HTTP_200_OK)
 
 
