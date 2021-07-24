@@ -6,7 +6,7 @@ from django.utils import timezone
 # Create your models here.
 def upload_logo(instance, filename):
     extision = filename.split('.')[1]
-    return 'programs/logos/%s.%s'%(instance.name,extision)
+    return 'programs/logos/%s.%s'%(instance.company_name,extision)
 
 class Level(models.Model):
     name = models.CharField(max_length=80)
@@ -23,6 +23,12 @@ class Level(models.Model):
 
 
 class Program(models.Model):
+    STATUS_CHOICES = (
+        ("opened", "Opened"),
+        ("closed", "Closed"),
+        ("eligable","Eligable")
+        
+    )
     admin = models.OneToOneField(settings.AUTH_USER_MODEL, related_name="program" ,null=True, on_delete=models.SET_NULL)
     company_name = models.CharField(max_length=100)
     logo = models.ImageField(upload_to=upload_logo)
@@ -32,6 +38,7 @@ class Program(models.Model):
     launch_date = models.DateTimeField(auto_now_add=True)
     balance = models.DecimalField(max_digits=7, decimal_places=2, blank=True, null=True)
     payings = models.DecimalField(max_digits=7, decimal_places=2, blank=True, null=True)
+    status =  models.CharField(max_length=100, choices=STATUS_CHOICES, default=1)
 
 
     class Meta:
@@ -48,8 +55,13 @@ class BountyBar(models.Model):
     amount = models.DecimalField(max_digits=8, decimal_places=2, default=200)
 
 class Asset(models.Model):
+    TYPE_CHOICES = (
+        ("dm","domain name"),
+        ("ios","IOS"),
+        ("android","Android")
+    )
     url = models.CharField(max_length=100)
-    type = models.CharField(max_length=100)
+    type = models.CharField(max_length=100, choices=TYPE_CHOICES, default="dm")
     paid = models.BooleanField(default=True)
     level = models.ForeignKey(Level, related_name='level_assets', on_delete=models.SET_NULL, null=True)
     reward = models.FloatField(blank=True)

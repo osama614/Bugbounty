@@ -13,6 +13,8 @@ from django.contrib.auth import get_user_model
 from .serializers import DashHackerSerializer, DashUserSerializer, DashFilterSerializer, ActivitySerializer, ThankerSerializer, ProgramSerializer, ProfileSerializer
 from programs.models import Level, Program
 from django.db.models import Q
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 
 User = get_user_model()
 # Create your views here.
@@ -31,8 +33,8 @@ class DashboardView(GenericAPIView):
         ser2 = ThankerSerializer(programs, many=True, context={"request": request})
         print(ser2.data)
         data = {**ser.data, "thankers": ser2.data}
+        return Response(data, status=status.HTTP_401_UNAUTHORIZED)
         return Response(data, status=status.HTTP_200_OK)
-
 
 class ReportsLevel(GenericAPIView):
     """
@@ -63,38 +65,6 @@ class ReportsLevel(GenericAPIView):
 
         return Response(data, status=status.HTTP_200_OK)
 
-# @api_view(["GET"])
-# def reports_levels(request):
-
-#     if request.method == "GET":
-#         user = User.objects.values("hacker").get(username="osama")
-#         id = user["hacker"]
-#         reports = Level.objects.values("name").filter(level_reports__owner__id=id).annotate(reports_count=Count("level_reports"))
-
-#         data = {}
-#         ser = DashFilterSerializer(reports, many=True)
-
-#         reports_by_state = {}
-
-#         reports_by_state["closed_reports"] = Report.objects.filter(owner__id=id, open_state="done", triage_state="accepted").count()
-#         reports_by_state["opened_reports"] = Report.objects.filter( ~Q(open_state="done"), owner__id=id, triage_state="accepted").count()
-
-#         data["reports_by_level"] = ser.data
-#         data["reports_by_state"] = reports_by_state
-
-
-#         return Response(data, status=status.HTTP_200_OK)
-
-# @api_view(["GET"])
-# def reports_10OWASP(request):
-
-#     if request.method == "GET":
-#         user = User.objects.values("hacker").get(username="osama")
-#         id = user["hacker"]
-#         reports = OWASP10.objects.values("name").filter(owasp10_reports__owner__id=id).annotate(reports_count=Count("owasp10_reports"))
-#         ser = DashFilterSerializer(reports, many=True)
-
-#         return Response(ser.data, status=status.HTTP_200_OK)
 
 
 class ReportsOwasp(GenericAPIView):
@@ -113,16 +83,6 @@ class ReportsOwasp(GenericAPIView):
         return Response(ser.data, status=status.HTTP_200_OK)
 
 
-# @api_view(["GET"])
-# def reports_weakness(request):
-
-#     if request.method == "GET":
-#         user = User.objects.values("hacker").get(username="osama")
-#         id = user["hacker"]
-#         reports = Weakness.objects.values("name").filter(weakness_reports__owner__id=id).annotate(reports_count=Count("weakness_reports"))
-#         ser = DashFilterSerializer(reports, many=True)
-
-#         return Response(ser.data, status=status.HTTP_200_OK)
 
 class ReportsWeakness(GenericAPIView):
     """
@@ -140,16 +100,6 @@ class ReportsWeakness(GenericAPIView):
 
         return Response(ser.data, status=status.HTTP_200_OK)
 
-# @api_view(["GET"])
-# def user_activity(request):
-
-#     if request.method == "GET":
-#         user = User.objects.values("hacker").get(username="osama")
-#         id = user["hacker"]
-#         reports = Report.objects.filter(owner__id=id, triage_state="accepted")
-#         ser = ActivitySerializer(reports, many=True)
-
-#         return Response(ser.data, status=status.HTTP_200_OK)
 
 class ReportsActivity(GenericAPIView):
     """
@@ -166,10 +116,16 @@ class ReportsActivity(GenericAPIView):
 
         return Response(ser.data, status=status.HTTP_200_OK)
 
+
 class ProgramsListView (ListAPIView):
 
     queryset = Program.objects.all()
     serializer_class = ProgramSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ['program_assets__type', 'status']
+    search_fields = ['company_name', 'summery']
+
+
 
 
 class UpdateProfileView(GenericAPIView):
