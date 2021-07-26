@@ -7,20 +7,32 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 # Create your models here
 
-class Role(models.Model):
-    name = models.CharField(max_length=20)
+# class Role(models.Model):
+#     name = models.CharField(max_length=20)
 
 
-    class Meta:
-        verbose_name = _('Role')
-        verbose_name_plural = _('Roles')
+#     class Meta:
+#         verbose_name = _('Role')
+#         verbose_name_plural = _('Roles')
 
 
-    def __str__(self):
-       return self.name
+#     def __str__(self):
+#        return self.name
 
 
 class User(AbstractUser):
+    ADMIN = 'admin'
+    STAFF = 'staff'
+    HACKER = 'hacker'
+    PROGRAM = 'program'
+      
+    ROLE_CHOICES = (
+          (ADMIN, 'Admin'),
+          (STAFF, 'Staff'),
+          (HACKER, 'Hacker'),
+          (PROGRAM, 'Program')
+      )
+      
     GENDER_CHOICES = (('male', "Male"),
               ("female", "Female"))
     bio = models.TextField(max_length=500, blank=True, null=True)
@@ -31,7 +43,8 @@ class User(AbstractUser):
     verified_phone = models.BooleanField(default=False)
     accept_rules = models.BooleanField(default=False)
     birth_date = models.DateField(blank=True, null=True)
-    role = models.ManyToManyField("Role")
+    role = models.CharField(choices=ROLE_CHOICES,max_length=80, blank=True, null=True)
+    #role = models.ManyToManyField("Role")
 
 
 

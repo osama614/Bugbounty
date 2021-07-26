@@ -13,7 +13,7 @@ user = get_user_model()
 
 def upload_avater(instance, filename):
     extision = filename.split('.')[1]
-    return 'hackers/avaters/%s.%s'%(instance.account.username,extision)
+    return 'hackers/avaters/' + filename 
 
 def upload_attachment(instance, filename):
     extision = filename.split('.')[1]
@@ -108,7 +108,7 @@ class Report(models.Model):
     triage_state = models.CharField(choices=TRIAGE_STATES, default='reviewing', max_length=100, blank=True)
     open_state = models.CharField(choices=OPEN_STATES, default='processing', max_length=100, blank=True)
     close_state = models.CharField(choices=CLOSE_STATES, max_length=100, blank=True)
-    attachment = models.FileField(upload_to=upload_attachment)
+    #attachment = models.FileField(upload_to=upload_attachment)
     video = models.TextField()
     level = models.ForeignKey(Level, related_name="level_reports" ,null=True, on_delete=models.SET_NULL)
     weakness = models.ForeignKey(Weakness, related_name="weakness_reports" ,null=True, on_delete=models.SET_NULL)
@@ -130,6 +130,9 @@ class Report(models.Model):
     def __str__(self):
        return self.title
 
+class ReportAttachments(models.Model):
+    path = models.FileField(upload_to=upload_attachment)
+    report = models.ForeignKey(Report, related_name="attachments" ,null=True, on_delete=models.SET_NULL)
 
 class Hacker(models.Model):
     account = models.OneToOneField(settings.AUTH_USER_MODEL, related_name="hacker" ,null=True, on_delete=models.SET_NULL)
@@ -137,32 +140,33 @@ class Hacker(models.Model):
     badges = models.ManyToManyField(Badge, related_name="badges_hacker" ,blank=True)
     avater = models.ImageField(blank=True, upload_to=upload_avater, null=True)
     rank = models.IntegerField(blank=True, null=True)
-    earnings = models.FloatField(blank=True, null=True)
-    points = models.IntegerField(blank=True, null=True)
+    points = models.ManyToManyField(Program, through='Point', related_name='programs')
     github = models.URLField(blank=True, null=True)
     linkedin = models.URLField(blank=True, null=True)
     twitter = models.URLField(blank=True, null=True)
     thankers = models.ManyToManyField(Program, related_name="thanked_hackers" ,blank=True)
+    earnings = models.ManyToManyField(Program, through='Bounty', related_name='payers')
+
 
 
     class Meta:
         verbose_name = _('Hacker')
         verbose_name_plural = _('Hackers')
 
-
     def __str__(self):
        return self.account.username
 
-@receiver(post_save, sender=user)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        Hacker.objects.create(account=instance)
+# @receiver(post_save, sender=user)
+# def create_user_profile(sender, instance, created, **kwargs):
+#     if created:
+#         Hacker.objects.create(account=instance)
 
 class Bounty(models.Model):
     amount = models.FloatField()
-    payer = models.ManyToManyField(Program, related_name="our_bounties" ,blank=True)
-    recipient = models.ManyToManyField(Hacker, related_name="my_bounties" ,blank=True)
+    payer = models.ForeignKey(Program, related_name="our_bounties" ,blank=True, on_delete=models.SET_NULL, null=True)
+    recipient = models.ForeignKey(Hacker, related_name="my_bounties" ,blank=True, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    valid = models.BooleanField()
 
     class Meta:
         verbose_name = _('Bounty')
@@ -170,8 +174,21 @@ class Bounty(models.Model):
 
 
     def __str__(self):
-       return f"Bounty {self.payer.name} to {self.recipient}"
+       return f"Bounty {self.payer.company_name} to {self.recipient}"
 
+class Point(models.Model):
+    amount = models.IntegerField(default=0)
+    program = models.ForeignKey(Program, related_name="our_points" ,blank=True, on_delete=models.SET_NULL, null=True)
+    hacker = models.ForeignKey(Hacker, related_name="my_points" ,blank=True, on_delete=models.SET_NULL, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    valid = models.BooleanField()
+
+    class Meta:
+        verbose_name = _('Point')
+        verbose_name_plural = _('Points')
+
+    def __str__(self):
+       return f"Point from {self.program.company_name } to {self.hacker}"
 
 class Session(models.Model):
     ip_address = models.GenericIPAddressField()

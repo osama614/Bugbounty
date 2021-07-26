@@ -1,6 +1,6 @@
 
 from django.conf import settings
-from .models import Role
+#from .models import Role
 from django.shortcuts import render
 from rest_framework.generics import CreateAPIView, GenericAPIView
 from rest_framework.views import APIView
@@ -65,7 +65,6 @@ class RegisterProgram(GenericAPIView):
 
 
         if serializer.is_valid():
-            #role = Role.objects.get(name='program')
 
             serializer.save()
 
@@ -76,7 +75,7 @@ class RegisterProgram(GenericAPIView):
                 username = serializer.data.get('username')
                 email = serializer.data.get('email')
                 user = User.objects.filter(username=username).first()
-                tokens = Email.send_email(request=request, user=user, email=email, type="programs")
+                tokens = Email.send_email(request=request, user=user, email=email)
                 data["access_token"] = tokens.get('access_token')
                 data["refresh_token"] = tokens.get('refresh_token')
             except Exception as e:

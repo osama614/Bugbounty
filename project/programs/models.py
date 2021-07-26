@@ -1,3 +1,4 @@
+#from project.hackers.serializers import User
 from django.db import models
 from django.db.models.fields.related import ManyToManyField, OneToOneField
 from django.utils.translation import gettext_lazy as _
@@ -24,12 +25,13 @@ class Level(models.Model):
 
 class Program(models.Model):
     STATUS_CHOICES = (
+
         ("opened", "Opened"),
         ("closed", "Closed"),
         ("eligable","Eligable")
         
     )
-    admin = models.OneToOneField(settings.AUTH_USER_MODEL, related_name="program" ,null=True, on_delete=models.SET_NULL)
+    admin = models.OneToOneField(settings.AUTH_USER_MODEL, related_name="program" ,null=True, on_delete=models.CASCADE)
     company_name = models.CharField(max_length=100)
     logo = models.ImageField(upload_to=upload_logo)
     url = models.URLField()
@@ -39,7 +41,6 @@ class Program(models.Model):
     balance = models.DecimalField(max_digits=7, decimal_places=2, blank=True, null=True)
     payings = models.DecimalField(max_digits=7, decimal_places=2, blank=True, null=True)
     status =  models.CharField(max_length=100, choices=STATUS_CHOICES, default="opened")
-
 
     class Meta:
         verbose_name = _('Program')
@@ -70,6 +71,7 @@ class Asset(models.Model):
     reward = models.FloatField(blank=True)
     description = models.TextField(max_length=300)
     owner = models.ForeignKey('Program', related_name='program_assets', on_delete=models.SET_NULL, null=True)
+    in_scope = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = _('Asset')
@@ -78,3 +80,20 @@ class Asset(models.Model):
 
     def __str__(self):
        return self.url
+
+class Announcement(models.Model):
+    program = models.ForeignKey(Program, related_name="announcements", null=True, on_delete=models.CASCADE)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="announcements", null=True, on_delete=models.CASCADE)
+    title = models.CharField(max_length=150)
+    body = models.TextField(max_length=500)
+    created = models.DateTimeField(auto_now_add=True)
+    published = models.DateTimeField(timezone.now())
+    is_active = models.BooleanField()
+    
+    class Meta:
+        verbose_name = _('Announcement')
+        verbose_name_plural = _('Announcements')
+
+
+    def __str__(self):
+       return self.title

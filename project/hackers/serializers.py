@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 from rest_framework.validators import UniqueValidator
 from .models import Badge, Hacker, Skill, Report
 from drf_writable_nested.serializers import WritableNestedModelSerializer
+from django.db.models import Max, Sum
 
 
 User = get_user_model()
@@ -34,7 +35,7 @@ class ThankerSerializer(serializers.ModelSerializer):
     reports_count = serializers.SerializerMethodField()
     class Meta:
         model = Program
-        fields = ('id', 'name', "logo", "reports_count")
+        fields = ('id', 'company_name', "logo", "reports_count")
 
     def get_reports_count(self, obj):
         #reports = obj.our_reports.all()
@@ -50,15 +51,23 @@ class DashHackerSerializer(serializers.ModelSerializer):
     skills = SkillSerializer(many=True, required=False)
     badges = DashBadgeSerializer(many=True, required=False)
     submitted_reports = serializers.SerializerMethodField()
+    points =  serializers.SerializerMethodField()
+    earnings =  serializers.SerializerMethodField()
    # thankers = ThankerSerializer(many=True)
 
     class Meta:
         model = Hacker
-        fields = ["avater", "github", "linkedin","twitter", "points", "earnings","rank","skills", "badges", "submitted_reports"]
+        fields = ["avater", "github", "linkedin","twitter", "points","earnings","rank","skills", "badges", "submitted_reports"]
         depth = 2
     def get_submitted_reports(self, obj):
         return obj.reports.count()
 
+    def get_points(self, obj):
+        ern = obj.my_points.all().aggregate(points=Sum('amount'))
+        return ern['points']
+    def get_earnings(self, obj):
+        ern = obj.my_bounties.all().aggregate(earnings=Sum('amount'))
+        return ern['earnings'] or 0
 
 class DashUserSerializer(serializers.ModelSerializer):
     hacker = DashHackerSerializer(required=False)
@@ -78,7 +87,7 @@ class DashFilterSerializer(serializers.Serializer):
 class ReportedToSerializer(serializers.ModelSerializer):
     class Meta:
         model = Program
-        fields = ["id","name","logo"]
+        fields = ["id","company_name","logo"]
 
 class OwnerSerializer(serializers.ModelSerializer):
     account = UserSerializer1()
@@ -86,7 +95,7 @@ class OwnerSerializer(serializers.ModelSerializer):
         model = Hacker
         fields = ["id", "account"]
 
-class LevelSerializer(serializers.ModelSerializer):
+class HLevelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Level
         fields = ["name"]
@@ -94,7 +103,7 @@ class LevelSerializer(serializers.ModelSerializer):
 class ActivitySerializer(serializers.ModelSerializer):
     owner = OwnerSerializer()
     reported_to = ReportedToSerializer()
-    level = LevelSerializer()
+    level = HLevelSerializer()
     class Meta:
         model = Report
         fields = ["id",'title', "owner", "reported_to", "closed_at", "close_state", "open_state","bounty", "level"]
