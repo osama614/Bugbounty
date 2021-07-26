@@ -20,7 +20,7 @@ class ProgramSerializer1(serializers.ModelSerializer):
     bounty_bars = BountyBarSerializer(many=True)
     class Meta:
         model = Program
-        fields = ["id","logo", "company_name", "summery", "launch_date", "url","status", "balance","payings", "bounty_bars"]
+        fields = ["id","logo", "company_name", "summery", "launch_date", "url","payings","balance", "status","bounty_bars"]
         depth = 1
 
 class ReportLevelSerializer(serializers.Serializer):

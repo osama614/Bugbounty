@@ -29,7 +29,7 @@ class Program(models.Model):
         ("opened", "Opened"),
         ("closed", "Closed"),
         ("eligable","Eligable")
-        
+
     )
     admin = models.OneToOneField(settings.AUTH_USER_MODEL, related_name="program" ,null=True, on_delete=models.CASCADE)
     company_name = models.CharField(max_length=100)
@@ -55,7 +55,7 @@ class BountyBar(models.Model):
     level = models.ForeignKey(Level, related_name="Bount", on_delete=models.SET_NULL, null=True, blank=True)
     amount = models.DecimalField(max_digits=8, decimal_places=2, default=200)
     def __str__(self):
-       return f"{self.program.company_name} {self.level} Bounty" 
+       return f"{self.program.company_name} {self.level} Bounty"
 
 class Asset(models.Model):
     TYPE_CHOICES = (
