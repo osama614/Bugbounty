@@ -125,7 +125,7 @@ class ProgramsListView (ListAPIView):
     serializer_class = ProgramSerializer1
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['program_assets__type', 'status']
-    search_fields = ['company_name', 'summery']
+    search_fields = ['company_name']
 
 
 
@@ -143,3 +143,5 @@ class UpdateProfileView(GenericAPIView):
             return Response(ser.data, status=status.HTTP_200_OK)
         else:
             return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
