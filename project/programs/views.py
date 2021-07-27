@@ -1,4 +1,5 @@
-from django.db.models.aggregates import Count
+from django.db.models.aggregates import Count, Sum
+from rest_framework import response
 from hackers.models import Report, OWASP10, Weakness
 from django.shortcuts import render
 from rest_framework.views import APIView
@@ -7,10 +8,10 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from users.permissions import IsVerified
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from .serializers import ProgramSerializer1, ReportLevelSerializer, ProActivitySerializer, AssetSerializer, ReportStateSerializer
+from .serializers import ProgramSerializer1, ReportLevelSerializer, ProActivitySerializer, AssetSerializer, ReportStateSerializer, ProgramViewSerializer,ThankedHackerSerializer
 from .models import Level, Program, Asset
 from django.db.models import Q
 
@@ -134,6 +135,7 @@ class ReportsActivity(GenericAPIView):
     """
     permission_classes = [IsAuthenticated]
     serializer_class = ProActivitySerializer
+
     def get(self, request):
         current_user = request.user
         user = User.objects.values("program").get(username=current_user.username)
@@ -143,7 +145,28 @@ class ReportsActivity(GenericAPIView):
 
         return Response(ser.data, status=status.HTTP_200_OK)
         
-#class ProgramView(GenericAPIView):
+class ProgramView(GenericAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = (ProgramViewSerializer,)
+    lookup_url_kwarg = "id"
+
+    def get(self, request, id):
+        id = self.kwargs.get(self.lookup_url_kwarg)
+        program = Program.objects.get(id=id)
+        #hackers = program.thanked_hackers.values("avater", "account__id", "account__username").filter(my_points__program=id).annotate(points=Sum("my_points__amount")) 
+        #print(hackers)
+        if program:
+            hackers = program.thanked_hackers.values("avater", "account__id", "account__username").filter(my_points__program=id).annotate(points=Sum("my_points__amount"))
+            h_ser = ThankedHackerSerializer(hackers,many=True)
+            p_ser = ProgramViewSerializer(program)
+            data = {
+                **p_ser.data,
+                "thanked_hackers": h_ser.data
+            }
+            return Response(data, status=status.HTTP_200_OK)
+        else :
+            return Response("Not Found", status=status.HTTP_404_NOT_FOUND)
+
 
 
 

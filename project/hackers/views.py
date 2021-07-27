@@ -36,7 +36,7 @@ class DashboardView(GenericAPIView):
         print(ser2.data)
         data = {**ser.data, "thankers": ser2.data}
         return Response(data, status=status.HTTP_401_UNAUTHORIZED)
-        return Response(data, status=status.HTTP_200_OK)
+       
 
 class ReportsLevel(GenericAPIView):
     """
