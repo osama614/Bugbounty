@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import ProgramInfoView,ReportsAsset,ReportsClosedState, ReportsLevel, ReportsOwasp, ReportsWeakness, ReportsActivity, ProgramView
+from .views import ProgramInfoView,ReportsAsset,ReportsClosedState, ReportsLevel, ReportsOwasp, ReportsWeakness, ReportsActivity, ProgramView, AnnouncementListView, AnnouncementDetailView
 
 
 app_name = "programs"
@@ -13,5 +13,6 @@ urlpatterns = [
     path('dashboard/user-activity', ReportsActivity.as_view(), name='user-activity'),
     path('dashboard/user-activity', ReportsActivity.as_view(), name='user-activity'),
     path('<int:id>/', ProgramView.as_view(), name='program-view'),
-
+    path('dashboard/settings/announcements', AnnouncementListView.as_view(), name='settings-announcement'),
+    path('dashboard/settings/announcements/<int:pk>/', AnnouncementDetailView.as_view(), name='action-settings-announcement'),
 ]

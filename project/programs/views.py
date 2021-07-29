@@ -1,9 +1,10 @@
 from django.db.models.aggregates import Count, Sum
+from django.http.response import Http404
 from rest_framework import response
 from hackers.models import Report, OWASP10, Weakness
 from django.shortcuts import render
 from rest_framework.views import APIView
-from rest_framework.generics import  GenericAPIView, ListAPIView
+from rest_framework.generics import  GenericAPIView, ListAPIView, ListCreateAPIView
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -11,8 +12,10 @@ from users.permissions import IsVerified
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from .serializers import ProgramSerializer1, ReportLevelSerializer, ProActivitySerializer, AssetSerializer, ReportStateSerializer, ProgramViewSerializer,ThankedHackerSerializer
-from .models import Level, Program, Asset
+from .serializers import (ProgramSerializer1, ReportLevelSerializer, ProActivitySerializer, AssetSerializer, 
+                            ReportStateSerializer, ProgramViewSerializer,
+                            ThankedHackerSerializer, AnnouncementSerializer)
+from .models import Level, Program, Asset, Announcement
 from django.db.models import Q
 
 
@@ -91,6 +94,7 @@ class ReportsWeakness(GenericAPIView):
         user = User.objects.values("program").get(username=current_user.username)
         id = user["program"]
         reports = Weakness.objects.values("name").filter(weakness_reports__reported_to__id=id).annotate(reports_count=Count("weakness_reports"))
+        print(reports)
         ser = ReportLevelSerializer(reports, many=True)
 
         return Response(ser.data, status=status.HTTP_200_OK)
@@ -106,7 +110,8 @@ class ReportsAsset(GenericAPIView):
 
         user = User.objects.values("program").get(username=current_user.username)
         id = user["program"]
-        reports = Asset.objects.values("url").filter(asset_reports__reported_to__id=id).annotate(reports_count=Count("asset_reports"))
+        reports = Asset.objects.values("url").filter(~Q(asset_reports__reported_to__id=id)).annotate(reports_count=Count("asset_reports"))
+        print(reports)
         ser = AssetSerializer(reports, many=True)
 
         return Response(ser.data, status=status.HTTP_200_OK)
@@ -167,6 +172,88 @@ class ProgramView(GenericAPIView):
         else :
             return Response("Not Found", status=status.HTTP_404_NOT_FOUND)
 
+
+
+
+class AnnouncementListView(ListCreateAPIView):
+    serializer_class = AnnouncementSerializer
+
+    def get_queryset(self):
+        program = self.request.user.program
+        announcements = program.announcements
+        return announcements
+        
+
+
+
+class AnnouncementDetailView(GenericAPIView):
+
+    """
+    Retrieve, update or delete a announcement instance.
+    """
+    def get_object(self, pk):
+        try:
+            return Announcement.objects.get(pk=pk)
+        except Announcement.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        announcement = self.get_object(pk)
+        serializer = AnnouncementSerializer(announcement)
+        return Response(serializer.data)
+
+    def put(self, request, pk, format=None):
+        announcement = self.get_object(pk)
+        serializer = AnnouncementSerializer(announcement, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        announcement = self.get_object(pk)
+        announcement.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class AnnouncementListView(ListCreateAPIView):
+    serializer_class = AnnouncementSerializer
+
+    def get_queryset(self):
+        program = self.request.user.program
+        announcements = program.announcements
+        return announcements
+        
+
+
+
+class AssetDetailView(GenericAPIView):
+
+    """
+    Retrieve, update or delete a Asset instance.
+    """
+    def get_object(self, pk):
+        try:
+            return Asset.objects.get(pk=pk)
+        except Asset.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        Asset = self.get_object(pk)
+        serializer = AssetSerializer(Asset)
+        return Response(serializer.data)
+
+    def put(self, request, pk, format=None):
+        Asset = self.get_object(pk)
+        serializer = AssetSerializer(Asset, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        Asset = self.get_object(pk)
+        Asset.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 
