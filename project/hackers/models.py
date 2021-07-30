@@ -156,10 +156,8 @@ class Hacker(models.Model):
     def __str__(self):
        return self.account.username
 
-# @receiver(post_save, sender=user)
-# def create_user_profile(sender, instance, created, **kwargs):
-#     if created:
-#         Hacker.objects.create(account=instance)
+class HackerPrefrences(models.Model):
+    pass
 
 class Bounty(models.Model):
     amount = models.FloatField()

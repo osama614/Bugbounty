@@ -4,9 +4,9 @@ from django.conf import settings
 from django.shortcuts import render
 from rest_framework.generics import CreateAPIView, GenericAPIView
 from rest_framework.views import APIView
-from .serializers import HackerSerializer, RefreshTokenSerializer, PhoneSerializer, CodeSerializer, ProgramSerializer
+from .serializers import HackerSerializer, RefreshTokenSerializer, PhoneSerializer, CodeSerializer, ProgramSerializer, ResetEmailSerializer
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import serializers, status
 from rest_framework_simplejwt.tokens import RefreshToken, Token
 from django.contrib.auth import get_user_model
 from django.contrib.sites.shortcuts import get_current_site
@@ -69,7 +69,7 @@ class RegisterProgram(GenericAPIView):
             serializer.save()
 
             data = {"email": serializer.data.get('email'),
-                    "role": "program"
+                    "type": serializer.data.get('role')
             }
             try:
                 username = serializer.data.get('username')
@@ -99,20 +99,6 @@ class ResendEmail(GenericAPIView):
             return Response({"message": f"error {e}"}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({"access_token":tokens.get("access_token")}, status=status.HTTP_201_CREATED)
-
-# @api_view(["POST"])
-# def resend_email(request):
-#     if request.method == "POST":
-
-#         user = request.user
-#         try:
-#             email = user.email
-#             tokens = Email.send_email(request=request, user=user, email=email)
-
-#         except Exception as e:
-#             return Response({"message": f"error {e}"}, status=status.HTTP_400_BAD_REQUEST)
-#         else:
-#             return Response({"access_token":tokens.get("access_token")}, status=status.HTTP_201_CREATED)
 
 
 class VerifyEmail(GenericAPIView):
@@ -152,18 +138,6 @@ class PhoneVerification(GenericAPIView):
         else:
             return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# @api_view(["POST"])
-# def phone_verification(request):
-#     if request.method == "POST":
-#         user = request.user
-#         ser = PhoneSerializer(user, request.data, partial=True)
-#         if ser.is_valid():
-#             ser.save()
-#             phone_number = ser.data.get('phone_number')
-#             print(phone_number)
-#             request.session["phone"] = phone_number
-#             sid = Phone.start_verification(to=phone_number)
-#             return sid
 
 
 @api_view(["POST"])
@@ -183,16 +157,6 @@ def resend_code(request):
     else:
         return Response({"message": "Your should have a valid phone number first!"}, status=status.HTTP_404_NOT_FOUND)
 
-# @api_view(["POST"])
-# def code_verification(request):
-#     if request.method == "POST":
-#         phone_number = request.session.get('phone')
-#         #phone_number = request.data.get('phone')
-#         code = request.data.get('code')
-
-#         res = Phone.check_verification(phone_number, code)
-
-#         return res
 
 class CodeVerification(GenericAPIView):
     """
@@ -201,10 +165,6 @@ class CodeVerification(GenericAPIView):
     serializer_class = CodeSerializer
 
     def post(self, request):
-        #phone_number = request.session.get('phone')
-        # user = request.user
-        #phone_number = user.phone_number
-        #if phone_number:
 
         phone_number = request.data.get('phone_number')
         code = request.data.get('code')
@@ -212,9 +172,22 @@ class CodeVerification(GenericAPIView):
         res = Phone.check_verification(phone=phone_number, code=code)
 
         return res
-       # else:
-           # return Response({"message": "Your should have a valid phone number first!"}, status=status.HTTP_404_NOT_FOUND)
+       
+class ResetEmail(GenericAPIView):
+     serializer_class = ResetEmailSerializer
 
+     def post(self, request):
+        serializer = ResetEmailSerializer(data=request.data)
+        if serializer.is_valid():
+            password = request.data.get("current_password")
+            user = request.user
+            if user.check_password(password):
+                user.email = request.data.get('new_email')
+                user.verified_email = False
+                user.save()
+                Email.send_email(request, user, request.data.get('new_email'))
+
+            
 class LogoutView(GenericAPIView):
     """This API Take a valid refresh token from the current user then he destroy it so
         you can't use it any more and you then delete the 'access_token' from your local storege and redirect the user to the login page.

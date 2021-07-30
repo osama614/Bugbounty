@@ -1,3 +1,4 @@
+
 from django.db.models.aggregates import Count, Sum
 from django.http.response import Http404
 from rest_framework import response
@@ -12,9 +13,9 @@ from users.permissions import IsVerified
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from .serializers import (ProgramSerializer1, ReportLevelSerializer, ProActivitySerializer, AssetSerializer, 
+from .serializers import (PNavbarSerializer, ProgramSerializer1, ReportLevelSerializer, ProActivitySerializer, AssetSerializer, 
                             ReportStateSerializer, ProgramViewSerializer,
-                            ThankedHackerSerializer, AnnouncementSerializer)
+                            ThankedHackerSerializer, AnnouncementSerializer, FullAssetSerializer)
 from .models import Level, Program, Asset, Announcement
 from django.db.models import Q
 
@@ -215,13 +216,13 @@ class AnnouncementDetailView(GenericAPIView):
         announcement.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-class AnnouncementListView(ListCreateAPIView):
-    serializer_class = AnnouncementSerializer
+class AssetListView(ListCreateAPIView):
+    serializer_class = FullAssetSerializer
 
     def get_queryset(self):
         program = self.request.user.program
-        announcements = program.announcements
-        return announcements
+        Assets = program.program_assets
+        return Assets
         
 
 
@@ -239,12 +240,12 @@ class AssetDetailView(GenericAPIView):
 
     def get(self, request, pk, format=None):
         Asset = self.get_object(pk)
-        serializer = AssetSerializer(Asset)
+        serializer = FullAssetSerializer(Asset)
         return Response(serializer.data)
 
     def put(self, request, pk, format=None):
         Asset = self.get_object(pk)
-        serializer = AssetSerializer(Asset, data=request.data)
+        serializer = FullAssetSerializer(Asset, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -254,6 +255,16 @@ class AssetDetailView(GenericAPIView):
         Asset = self.get_object(pk)
         Asset.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class NavbarView(GenericAPIView):
+
+    serializer_class = PNavbarSerializer
+
+    def get(self, request):
+        user = request.user
+        ser = PNavbarSerializer(user)
+        return Response(ser.data, status=status.HTTP_200_OK)
+
 
 
 

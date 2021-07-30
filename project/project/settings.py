@@ -27,7 +27,7 @@ SECRET_KEY = 'or!473&bx2l4lc5vx^k=3#2@kh@jrv5g485btq5i+m9otzk0w8'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["bugbounty.pythonanywhere.com"]
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
 
     'drf_yasg',
+    "django_filters",
 
 
 ]
@@ -104,6 +105,10 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 AUTH_USER_MODEL = 'users.User'
 
+AUTHENTICATION_BACKENDS = [
+ 'django.contrib.auth.backends.ModelBackend',
+ 'users.custom_auth.EmailAuthBackend',
+]
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
@@ -115,29 +120,31 @@ AUTH_USER_MODEL = 'users.User'
 #     }
 #}
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'bugbounty$default',
-        'USER': 'bugbounty',
-        'PASSWORD': 'robot9000',
-        'HOST': 'bugbounty.mysql.pythonanywhere-services.com',   # Or an IP Address that your DB is hosted on
-        #'PORT': '3306',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'bugbounty$default',
+#         'USER': 'bugbounty',
+#         'PASSWORD': 'robot9000',
+#         'HOST': 'bugbounty.mysql.pythonanywhere-services.com',   # Or an IP Address that your DB is hosted on
+#         #'PORT': '3306',
+#     }
+# }
+
+
 
 CORS_ALLOW_ALL_ORIGINS = True
 
-#DATABASES = {
-#       'default': {
-#       'ENGINE': 'django.db.backends.postgresql',
-#       'NAME': 'services',
-#       'USER': 'postgres',
-#       'PASSWORD': 'robot9000',
-#       'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
-#       'PORT': '5432',
-#}
-#}
+DATABASES = {
+      'default': {
+      'ENGINE': 'django.db.backends.postgresql',
+      'NAME': 'bugbounty',
+      'USER': 'postgres',
+      'PASSWORD': 'robot9000',
+      'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
+      'PORT': '5432',
+}
+}
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
@@ -176,7 +183,7 @@ REST_FRAMEWORK = {
 DJOSER = {
     'LOGIN_FIELD':'email',
     'PASSWORD_RESET_CONFIRM_URL': 'https://development-verison.herokuapp.com/reset-password?uid={uid}&token={token}',
-    'USERNAME_RESET_CONFIRM_URL': 'https://development-verison.herokuapp.com/reset-email?uid={uid}&token={token}',
+    'USERNAME_RESET_CONFIRM_URL': 'https://development-verison.herokuapp.com/verify-email/?uid={uid}&token={token}',
     'ACTIVATION_URL': '#/activate/{uid}/{token}',
     'SEND_ACTIVATION_EMAIL': True,
     'PASSWORD_CHANGED_EMAIL_CONFIRMATION': True,

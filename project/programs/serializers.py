@@ -143,3 +143,15 @@ class ProgramViewSerializer(serializers.ModelSerializer):
         ser = FullAssetSerializer(assets, many=True)
         
         return ser.data
+
+class LogoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Program
+        fields = ["logo"]
+
+class PNavbarSerializer(serializers.ModelSerializer):
+    program = LogoSerializer()
+    class Meta:
+        model = User
+        fields = ["id", "username", "program", "role"]
+

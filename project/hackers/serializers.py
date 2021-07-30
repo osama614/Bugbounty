@@ -132,3 +132,14 @@ class ProfileSerializer(WritableNestedModelSerializer):
         model = User
         fields = ["first_name", "last_name","bio", "country", "hacker" ]
         depth=2
+class AvaterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Hacker
+        fields = ["avater"]
+
+class HNavbarSerializer(serializers.ModelSerializer):
+    hacker= AvaterSerializer()
+    
+    class Meta:
+        model = User
+        fields = ["id", "username", "hacker", "role"]

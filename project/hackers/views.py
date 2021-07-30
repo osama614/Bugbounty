@@ -10,7 +10,9 @@ from users.permissions import IsVerified
 from rest_framework.permissions import IsAuthenticated
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from .serializers import DashHackerSerializer, DashUserSerializer, DashFilterSerializer, ActivitySerializer, ThankerSerializer, ProgramSerializer, ProfileSerializer
+from .serializers import (DashHackerSerializer, DashUserSerializer, DashFilterSerializer, ActivitySerializer,
+                          HNavbarSerializer, ThankerSerializer, ProgramSerializer, ProfileSerializer)
+                          
 from programs.models import Level, Program
 from programs.serializers import ProgramSerializer1
 from django.db.models import Q
@@ -35,7 +37,7 @@ class DashboardView(GenericAPIView):
         ser2 = ThankerSerializer(programs, many=True, context={"request": request})
         print(ser2.data)
         data = {**ser.data, "thankers": ser2.data}
-        return Response(data, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(data, status=status.HTTP_200_OK)
        
 
 class ReportsLevel(GenericAPIView):
@@ -128,6 +130,14 @@ class ProgramsListView (ListAPIView):
     search_fields = ['company_name']
 
 
+class NavbarView(GenericAPIView):
+
+    serializer_class = HNavbarSerializer
+
+    def get(self, request):
+        user = request.user
+        ser = HNavbarSerializer(user)
+        return Response(ser.data, status=status.HTTP_200_OK)
 
 
 class UpdateProfileView(GenericAPIView):

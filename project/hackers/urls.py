@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import DashboardView, ReportsLevel, ReportsOwasp, ReportsWeakness, ReportsActivity, ProgramsListView, UpdateProfileView
+from .views import DashboardView, NavbarView, ReportsLevel, ReportsOwasp, ReportsWeakness, ReportsActivity, ProgramsListView, UpdateProfileView
 
 
 app_name = "hackers"
@@ -13,5 +13,6 @@ urlpatterns = [
     path('dashboard/user-activity', ReportsActivity.as_view(), name='user-activity'),
     path('dashboard/discovery',ProgramsListView.as_view(), name='discovery'),
     path('dashboard/profile/', UpdateProfileView.as_view(), name='profile'),
+    path('navbar/', NavbarView.as_view(), name='navbar'),
 
 ]
