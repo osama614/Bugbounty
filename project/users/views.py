@@ -175,6 +175,7 @@ class CodeVerification(GenericAPIView):
        
 class ResetEmail(GenericAPIView):
      serializer_class = ResetEmailSerializer
+     permission_classes = [IsAuthenticated, IsVerified]
 
      def post(self, request):
         serializer = ResetEmailSerializer(data=request.data)

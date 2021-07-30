@@ -12,7 +12,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from .serializers import (DashHackerSerializer, DashUserSerializer, DashFilterSerializer, ActivitySerializer,
                           HNavbarSerializer, ThankerSerializer, ProgramSerializer, ProfileSerializer)
-                          
+
 from programs.models import Level, Program
 from programs.serializers import ProgramSerializer1
 from django.db.models import Q
@@ -23,7 +23,7 @@ from rest_framework import filters
 User = get_user_model()
 # Create your views here.
 class DashboardView(GenericAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsVerified]
     """
     This API Is used to return the user Information.
     """
@@ -44,7 +44,7 @@ class ReportsLevel(GenericAPIView):
     """
     This api is responsible for returning all the user reports filtered by it's level
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsVerified]
     serializer_class = DashHackerSerializer
 
     def get(self, request):
@@ -75,7 +75,7 @@ class ReportsOwasp(GenericAPIView):
     """
     This api is responsible for returning all the user reports filtered by it's 10 Owasp vurnibiblity.
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsVerified]
     serializer_class = DashFilterSerializer
     def get(self, request):
         current_user = request.user
@@ -92,7 +92,7 @@ class ReportsWeakness(GenericAPIView):
     """
     This api is responsible for returning all the user reports filtered by it's Weakness that he found.
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsVerified]
     serializer_class = DashFilterSerializer
     def get(self, request):
         current_user = request.user
@@ -109,7 +109,7 @@ class ReportsActivity(GenericAPIView):
     """
     This api is responsible for returning all the user on the website.
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsVerified]
     serializer_class = ActivitySerializer
     def get(self, request):
         current_user = request.user
@@ -142,7 +142,7 @@ class NavbarView(GenericAPIView):
 
 class UpdateProfileView(GenericAPIView):
     serializer_class = ProfileSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsVerified]
 
     def post(self, request):
         user = request.user

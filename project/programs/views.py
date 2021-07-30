@@ -23,7 +23,7 @@ from django.db.models import Q
 User = get_user_model()
 # Create your views here.
 class ProgramInfoView(GenericAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsVerified]
     """
     This API Is used to return the program Information.
     """
@@ -42,7 +42,7 @@ class ReportsLevel(GenericAPIView):
     """
     This api is responsible for returning all the Program reports filtered by it's level
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsVerified]
     serializer_class = ReportLevelSerializer
 
     def get(self, request):
@@ -72,7 +72,7 @@ class ReportsOwasp(GenericAPIView):
     """
     This api is responsible for returning all the user reports filtered by it's 10 Owasp vurnibiblity.
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsVerified]
     serializer_class = ReportLevelSerializer
     def get(self, request):
         current_user = request.user
@@ -87,7 +87,7 @@ class ReportsWeakness(GenericAPIView):
     """
     This api is responsible for returning all the user reports filtered by it's Weakness that he found.
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsVerified]
     serializer_class = ReportLevelSerializer
     def get(self, request):
         current_user = request.user
@@ -104,7 +104,7 @@ class ReportsAsset(GenericAPIView):
     """
     This api is responsible for returning all the user reports filtered by it's Weakness that he found.
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsVerified]
     serializer_class = AssetSerializer
     def get(self, request):
         current_user = request.user
@@ -121,7 +121,7 @@ class ReportsClosedState(GenericAPIView):
     """
     This api is responsible for returning all the user reports filtered by it's Weakness that he found.
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsVerified]
     serializer_class = ReportStateSerializer
     def get(self, request):
         current_user = request.user
@@ -139,7 +139,7 @@ class ReportsActivity(GenericAPIView):
     """
     This api is responsible for returning all the user on the website.
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsVerified]
     serializer_class = ProActivitySerializer
 
     def get(self, request):
@@ -178,6 +178,7 @@ class ProgramView(GenericAPIView):
 
 class AnnouncementListView(ListCreateAPIView):
     serializer_class = AnnouncementSerializer
+    permission_classes = [IsAuthenticated, IsVerified]
 
     def get_queryset(self):
         program = self.request.user.program
@@ -192,6 +193,7 @@ class AnnouncementDetailView(GenericAPIView):
     """
     Retrieve, update or delete a announcement instance.
     """
+    permission_classes = [IsAuthenticated, IsVerified]
     def get_object(self, pk):
         try:
             return Announcement.objects.get(pk=pk)
@@ -218,7 +220,7 @@ class AnnouncementDetailView(GenericAPIView):
 
 class AssetListView(ListCreateAPIView):
     serializer_class = FullAssetSerializer
-
+    permission_classes = [IsAuthenticated, IsVerified]
     def get_queryset(self):
         program = self.request.user.program
         Assets = program.program_assets
@@ -231,7 +233,10 @@ class AssetDetailView(GenericAPIView):
 
     """
     Retrieve, update or delete a Asset instance.
+
     """
+    permission_classes = [IsAuthenticated, IsVerified]
+
     def get_object(self, pk):
         try:
             return Asset.objects.get(pk=pk)
@@ -259,7 +264,7 @@ class AssetDetailView(GenericAPIView):
 class NavbarView(GenericAPIView):
 
     serializer_class = PNavbarSerializer
-
+    permission_classes = [IsAuthenticated, IsVerified]
     def get(self, request):
         user = request.user
         ser = PNavbarSerializer(user)
