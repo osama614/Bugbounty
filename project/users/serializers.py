@@ -114,11 +114,11 @@ class CodeSerializer(serializers.Serializer):
     phone_number = PhoneNumberField(required=True, validators=[UniqueValidator(queryset=User.objects.all())])
 
 class ResetEmailSerializer(serializers.Serializer):
-    current_password = serializers.CharField(style={"input_type": "password"})
-    new_email = serializers.EmailField(required = True)
+    current_password = serializers.CharField(required = True, style={"input_type": "password"})
+    new_email = serializers.EmailField(required = True, validators=[UniqueValidator(queryset=User.objects.all())])
 
-class NavbarSerializer(serializers.ModelSerializer):
+# class NavbarSerializer(serializers.ModelSerializer):
     
-    class Meta:
-        model = User
-        fields = ["id", "username", "hacker__avater", "role"]
+#     class Meta:
+#         model = User
+#         fields = ["id", "username", "hacker__avater", "role"]

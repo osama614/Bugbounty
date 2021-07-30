@@ -1,11 +1,12 @@
 
+from functools import partial
 from django.db.models.aggregates import Count, Sum
 from django.http.response import Http404
 from rest_framework import response
 from hackers.models import Report, OWASP10, Weakness
 from django.shortcuts import render
 from rest_framework.views import APIView
-from rest_framework.generics import  GenericAPIView, ListAPIView, ListCreateAPIView
+from rest_framework.generics import  GenericAPIView, ListAPIView, ListCreateAPIView, RetrieveUpdateAPIView
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -13,8 +14,8 @@ from users.permissions import IsVerified
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from .serializers import (PNavbarSerializer, ProgramSerializer1, ReportLevelSerializer, ProActivitySerializer, AssetSerializer, 
-                            ReportStateSerializer, ProgramViewSerializer,
+from .serializers import (BountyBarSerializer, PNavbarSerializer, PolicySerializer, ProgramSerializer1, ReportLevelSerializer, ProActivitySerializer, AssetSerializer, 
+                            ReportStateSerializer, ProgramViewSerializer, CompanyInfoSerializer, LogoSerializer,
                             ThankedHackerSerializer, AnnouncementSerializer, FullAssetSerializer)
 from .models import Level, Program, Asset, Announcement
 from django.db.models import Q
@@ -159,8 +160,6 @@ class ProgramView(GenericAPIView):
     def get(self, request, id):
         id = self.kwargs.get(self.lookup_url_kwarg)
         program = Program.objects.get(id=id)
-        #hackers = program.thanked_hackers.values("avater", "account__id", "account__username").filter(my_points__program=id).annotate(points=Sum("my_points__amount")) 
-        #print(hackers)
         if program:
             hackers = program.thanked_hackers.values("avater", "account__id", "account__username").filter(my_points__program=id).annotate(points=Sum("my_points__amount"))
             h_ser = ThankedHackerSerializer(hackers,many=True)
@@ -174,7 +173,105 @@ class ProgramView(GenericAPIView):
             return Response("Not Found", status=status.HTTP_404_NOT_FOUND)
 
 
+class ChangeLogoView(GenericAPIView):
+    erializer_class = LogoSerializer
+    permission_classes = [IsAuthenticated, IsVerified]
+    
+    def get(self, request):
+        program = request.user.program
+        if program:
+            ser_pro = LogoSerializer(program)
+            return Response(ser_pro.data, status=status.HTTP_200_OK)
+        else:
+            raise Http404
 
+    def put(self,request):
+        program = request.user.program
+        if program:
+            ser_pro = LogoSerializer(program, data=request.data, partial=True)
+            if ser_pro.is_valid():
+               ser_pro.save()
+               return Response(ser_pro.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(ser_pro.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            raise Http404
+
+class CompanyInfoView(GenericAPIView):
+    serializer_class = CompanyInfoSerializer
+    permission_classes = [IsAuthenticated, IsVerified]
+    
+    def get(self, request):
+        program = request.user.program
+        if program:
+            ser_pro = CompanyInfoSerializer(program)
+            return Response(ser_pro.data, status=status.HTTP_200_OK)
+        else:
+            raise Http404
+
+    def put(self,request):
+        program = request.user.program
+        if program:
+            ser_pro = CompanyInfoSerializer(program, data=request.data, partial=True)
+            if ser_pro.is_valid():
+               ser_pro.save()
+               return Response(ser_pro.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(ser_pro.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            raise Http404
+    
+class RewardsView(GenericAPIView):
+    serializer_class = BountyBarSerializer
+    permission_classes = [IsAuthenticated, IsVerified]
+    
+    def get(self, request):
+        rewards = request.user.program.bounty_bars
+        if rewards:
+            ser_pro = BountyBarSerializer(rewards, many=True)
+            return Response(ser_pro.data, status=status.HTTP_200_OK)
+        else:
+            raise Http404
+    
+    # def post(self,request):
+
+    def put(self,request):
+        program = request.user.program
+        if program:
+            ser_pro = CompanyInfoSerializer(program, data=request.data, partial=True)
+            if ser_pro.is_valid():
+               ser_pro.save()
+               return Response(ser_pro.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(ser_pro.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            raise Http404
+
+class CompanyPolicy(GenericAPIView):
+    serializer_class = PolicySerializer
+    permission_classes = [IsAuthenticated, IsVerified]
+    
+    def get(self, request):
+        policy = request.user.program
+        if policy:
+            ser_pro = PolicySerializer(policy)
+            return Response(ser_pro.data, status=status.HTTP_200_OK)
+        else:
+            raise Http404
+    
+
+
+    def put(self,request):
+        policy = request.user.program
+        if policy:
+            ser_pro = PolicySerializer(policy, data=request.data, partial=True)
+            if ser_pro.is_valid():
+               ser_pro.save()
+               return Response(ser_pro.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(ser_pro.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            raise Http404
 
 class AnnouncementListView(ListCreateAPIView):
     serializer_class = AnnouncementSerializer
@@ -185,7 +282,7 @@ class AnnouncementListView(ListCreateAPIView):
         announcements = program.announcements
         return announcements
         
-
+ 
 
 
 class AnnouncementDetailView(GenericAPIView):

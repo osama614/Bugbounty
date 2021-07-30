@@ -21,6 +21,17 @@ class BountyBarSerializer(serializers.ModelSerializer):
         model = BountyBar
         fields = ["level", "amount"]
 
+    def create(self, validated_data):
+        levels = []
+        for i in validated_data:
+            level = i.pop('level')
+            levels.append(level)
+        program = self.request.user.program
+
+        
+
+        return super().create(validated_data)
+
 class ProgramSerializer1(serializers.ModelSerializer):
     bounty_bars = BountyBarSerializer(many=True)
     class Meta:
@@ -149,9 +160,26 @@ class LogoSerializer(serializers.ModelSerializer):
         model = Program
         fields = ["logo"]
 
+
+
+############## Settings ######
+
+class CompanyInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Program
+        fields = ["id", "url", "company_name", "summery" ]
+        read_only_fields = ('id',)
+
+
+
+
 class PNavbarSerializer(serializers.ModelSerializer):
     program = LogoSerializer()
     class Meta:
         model = User
         fields = ["id", "username", "program", "role"]
 
+class PolicySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Program
+        fields = ["policy"]
