@@ -171,6 +171,13 @@ class RewardSerializer(BulkSerializerMixin, serializers.ModelSerializer):
         fields = ["id", "level", "amount", "program"]
         list_serializer_class = BulkListSerializer
 
+class PostAssetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Asset
+        fields = "__all__"
+
+##############################################################
+
 class PNavbarSerializer(serializers.ModelSerializer):
     program = LogoSerializer()
     class Meta:

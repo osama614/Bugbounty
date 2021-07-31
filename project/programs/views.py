@@ -14,7 +14,7 @@ from users.permissions import IsVerified
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from .serializers import (BountyBarSerializer, PNavbarSerializer, PolicySerializer, ProgramSerializer1, ReportLevelSerializer, ProActivitySerializer, AssetSerializer, 
+from .serializers import (BountyBarSerializer, PNavbarSerializer, PolicySerializer, PostAssetSerializer, ProgramSerializer1, ReportLevelSerializer, ProActivitySerializer, AssetSerializer, 
                             ReportStateSerializer, ProgramViewSerializer, CompanyInfoSerializer, LogoSerializer, RewardSerializer,
                             ThankedHackerSerializer, AnnouncementSerializer, FullAssetSerializer)
 from .models import Level, Program, Asset, Announcement
@@ -158,7 +158,7 @@ class ReportsActivity(GenericAPIView):
         
 class ProgramView(GenericAPIView):
     permission_classes = [AllowAny]
-    serializer_class = (ProgramViewSerializer,)
+    serializer_class = (ProgramViewSerializer,ThankedHackerSerializer)
     lookup_url_kwarg = "id"
 
     def get(self, request, id):
@@ -178,7 +178,7 @@ class ProgramView(GenericAPIView):
 
 
 class ChangeLogoView(GenericAPIView):
-    erializer_class = LogoSerializer
+    serializer_class = LogoSerializer
     permission_classes = [IsAuthenticated, IsVerified]
     
     def get(self, request):
@@ -200,6 +200,7 @@ class ChangeLogoView(GenericAPIView):
                 return Response(ser_pro.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             raise Http404
+
 
 class CompanyInfoView(GenericAPIView):
     serializer_class = CompanyInfoSerializer
@@ -224,6 +225,7 @@ class CompanyInfoView(GenericAPIView):
                 return Response(ser_pro.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             raise Http404
+
 class RewardsView(ListBulkCreateUpdateDestroyAPIView):
     serializer_class = RewardSerializer
     permission_classes = [IsAuthenticated, IsVerified]    
@@ -336,8 +338,15 @@ class AnnouncementDetailView(GenericAPIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class AssetListView(ListCreateAPIView):
-    serializer_class = FullAssetSerializer
+    #serializer_class = PostAssetSerializer
     permission_classes = [IsAuthenticated, IsVerified]
+
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return PostAssetSerializer
+        return FullAssetSerializer
+
+
     def get_queryset(self):
         program = self.request.user.program
         Assets = program.program_assets

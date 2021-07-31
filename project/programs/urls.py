@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import (ChangeLogoView, CompanyInfoView, CompanyPolicy, NavbarView, ProgramInfoView,ReportsAsset,ReportsClosedState, ReportsLevel,
+from .views import (AssetDetailView, AssetListView, ChangeLogoView, CompanyInfoView, CompanyPolicy, NavbarView, ProgramInfoView,ReportsAsset,ReportsClosedState, ReportsLevel,
                    ReportsOwasp, ReportsWeakness, ReportsActivity, ProgramView, AnnouncementListView, 
                     AnnouncementDetailView, RewardsView)
 
@@ -17,6 +17,8 @@ urlpatterns = [
     path('<int:id>/', ProgramView.as_view(), name='program-view'),
     path('dashboard/settings/announcements', AnnouncementListView.as_view(), name='settings-announcement'),
     path('dashboard/settings/announcements/<int:pk>/', AnnouncementDetailView.as_view(), name='action-settings-announcement'),
+    path('dashboard/settings/assets', AssetListView.as_view(), name='settings-asset'),
+    path('dashboard/settings/assets/<int:pk>/', AssetDetailView.as_view(), name='action-settings-asset'),
     path('dashboard/settings/set-logo', ChangeLogoView.as_view(), name='settings-logo'),
     path('dashboard/settings/company-info', CompanyInfoView.as_view(), name='settings-company-info'),
     path('dashboard/settings/company-policy', CompanyPolicy.as_view(), name='settings-company-policy'),
