@@ -8,6 +8,11 @@ from django.contrib.auth import get_user_model
 from rest_framework.validators import UniqueValidator
 from hackers.models import  Hacker, Report
 from drf_writable_nested.serializers import WritableNestedModelSerializer
+from rest_framework_bulk import (
+    BulkListSerializer,
+    BulkSerializerMixin,
+    ListBulkCreateUpdateDestroyAPIView,
+)
 
 
 User = get_user_model()
@@ -20,17 +25,6 @@ class BountyBarSerializer(serializers.ModelSerializer):
     class Meta:
         model = BountyBar
         fields = ["level", "amount"]
-
-    def create(self, validated_data):
-        levels = []
-        for i in validated_data:
-            level = i.pop('level')
-            levels.append(level)
-        program = self.request.user.program
-
-        
-
-        return super().create(validated_data)
 
 class ProgramSerializer1(serializers.ModelSerializer):
     bounty_bars = BountyBarSerializer(many=True)
@@ -171,7 +165,11 @@ class CompanyInfoSerializer(serializers.ModelSerializer):
         read_only_fields = ('id',)
 
 
-
+class RewardSerializer(BulkSerializerMixin, serializers.ModelSerializer):
+    class Meta:
+        model = BountyBar
+        fields = ["id", "level", "amount", "program"]
+        list_serializer_class = BulkListSerializer
 
 class PNavbarSerializer(serializers.ModelSerializer):
     program = LogoSerializer()

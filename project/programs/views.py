@@ -15,11 +15,15 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from .serializers import (BountyBarSerializer, PNavbarSerializer, PolicySerializer, ProgramSerializer1, ReportLevelSerializer, ProActivitySerializer, AssetSerializer, 
-                            ReportStateSerializer, ProgramViewSerializer, CompanyInfoSerializer, LogoSerializer,
+                            ReportStateSerializer, ProgramViewSerializer, CompanyInfoSerializer, LogoSerializer, RewardSerializer,
                             ThankedHackerSerializer, AnnouncementSerializer, FullAssetSerializer)
 from .models import Level, Program, Asset, Announcement
 from django.db.models import Q
-
+from rest_framework_bulk import (
+    BulkListSerializer,
+    BulkSerializerMixin,
+    ListBulkCreateUpdateDestroyAPIView,
+)
 
 User = get_user_model()
 # Create your views here.
@@ -220,32 +224,50 @@ class CompanyInfoView(GenericAPIView):
                 return Response(ser_pro.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             raise Http404
-    
-class RewardsView(GenericAPIView):
-    serializer_class = BountyBarSerializer
-    permission_classes = [IsAuthenticated, IsVerified]
-    
-    def get(self, request):
-        rewards = request.user.program.bounty_bars
-        if rewards:
-            ser_pro = BountyBarSerializer(rewards, many=True)
-            return Response(ser_pro.data, status=status.HTTP_200_OK)
-        else:
-            raise Http404
-    
-    # def post(self,request):
+class RewardsView(ListBulkCreateUpdateDestroyAPIView):
+    serializer_class = RewardSerializer
+    permission_classes = [IsAuthenticated, IsVerified]    
 
-    def put(self,request):
-        program = request.user.program
-        if program:
-            ser_pro = CompanyInfoSerializer(program, data=request.data, partial=True)
-            if ser_pro.is_valid():
-               ser_pro.save()
-               return Response(ser_pro.data, status=status.HTTP_201_CREATED)
-            else:
-                return Response(ser_pro.errors, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            raise Http404
+    def get_queryset(self):
+        
+        return self.request.user.program.bounty_bars
+
+
+
+# class RewardsView(GenericAPIView):
+#     serializer_class = RewardSerializer
+#     permission_classes = [IsAuthenticated, IsVerified]
+    
+#     def get(self, request):
+#         rewards = request.user.program.bounty_bars
+#         if rewards:
+#             ser_pro = RewardSerializer(rewards, many=True)
+#             return Response(ser_pro.data, status=status.HTTP_200_OK)
+#         else:
+#             raise Http404
+    
+#     def post(self, request):
+
+#             ser_pro = RewardSerializer(data=request.data,many=True)
+#             if ser_pro.is_valid():
+#                ser_pro.save()
+#                return Response(ser_pro.data, status=status.HTTP_201_CREATED)
+#             else:
+#                 return Response(ser_pro.errors, status=status.HTTP_400_BAD_REQUEST)
+       
+
+#     def put(self,request):
+#         rewards = request.user.program.bounty_bars
+#         if rewards:
+#             ser_pro = RewardSerializer(rewards, data=request.data, partial=True)
+#             if ser_pro.is_valid():
+#                ser_pro.save()
+#                return Response(ser_pro.data, status=status.HTTP_201_CREATED)
+#             else:
+#                 return Response(ser_pro.errors, status=status.HTTP_400_BAD_REQUEST)
+#         else:
+#             raise Http404
+
 
 class CompanyPolicy(GenericAPIView):
     serializer_class = PolicySerializer
@@ -259,8 +281,6 @@ class CompanyPolicy(GenericAPIView):
         else:
             raise Http404
     
-
-
     def put(self,request):
         policy = request.user.program
         if policy:
@@ -273,6 +293,8 @@ class CompanyPolicy(GenericAPIView):
         else:
             raise Http404
 
+
+
 class AnnouncementListView(ListCreateAPIView):
     serializer_class = AnnouncementSerializer
     permission_classes = [IsAuthenticated, IsVerified]
@@ -283,8 +305,6 @@ class AnnouncementListView(ListCreateAPIView):
         return announcements
         
  
-
-
 class AnnouncementDetailView(GenericAPIView):
 
     """

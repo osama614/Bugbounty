@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (ChangeLogoView, CompanyInfoView, CompanyPolicy, NavbarView, ProgramInfoView,ReportsAsset,ReportsClosedState, ReportsLevel,
                    ReportsOwasp, ReportsWeakness, ReportsActivity, ProgramView, AnnouncementListView, 
-                    AnnouncementDetailView)
+                    AnnouncementDetailView, RewardsView)
 
 
 app_name = "programs"
@@ -20,6 +20,6 @@ urlpatterns = [
     path('dashboard/settings/set-logo', ChangeLogoView.as_view(), name='settings-logo'),
     path('dashboard/settings/company-info', CompanyInfoView.as_view(), name='settings-company-info'),
     path('dashboard/settings/company-policy', CompanyPolicy.as_view(), name='settings-company-policy'),
-    path('dashboard/settings/rewards', CompanyInfoView.as_view(), name='settings-rewards'),
+    path('dashboard/settings/rewards', RewardsView.as_view(), name='settings-rewards'),
     path('navbar/', NavbarView.as_view(), name='navbar'),
 ]
