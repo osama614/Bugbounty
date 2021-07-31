@@ -53,7 +53,7 @@ class Program(models.Model):
 class BountyBar(models.Model):
     program = models.ForeignKey(Program, related_name="bounty_bars", null=True, on_delete=models.SET_NULL)
     level = models.ForeignKey(Level, related_name="Bount", on_delete=models.SET_NULL, null=True, blank=True)
-    amount = models.DecimalField(max_digits=8, decimal_places=2, default=200)
+    amount = models.DecimalField(max_digits=8, decimal_places=2, )
     def __str__(self):
        return f"{self.program.company_name} {self.level} Bounty"
 

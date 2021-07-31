@@ -166,6 +166,7 @@ class CompanyInfoSerializer(serializers.ModelSerializer):
 
 
 class RewardSerializer(BulkSerializerMixin, serializers.ModelSerializer):
+    amount = serializers.DecimalField(coerce_to_string=False,max_digits=8, decimal_places=2)
     class Meta:
         model = BountyBar
         fields = ["id", "level", "amount", "program"]
