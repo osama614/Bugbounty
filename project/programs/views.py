@@ -116,7 +116,7 @@ class ReportsAsset(GenericAPIView):
 
         user = User.objects.values("program").get(username=current_user.username)
         id = user["program"]
-        reports = Asset.objects.values("url").filter(~Q(asset_reports__reported_to__id=id)).annotate(reports_count=Count("asset_reports"))
+        reports = Asset.objects.values("url").filter(asset_reports__reported_to__id=id).annotate(reports_count=Count("asset_reports"))
         print(reports)
         ser = AssetSerializer(reports, many=True)
 
@@ -326,7 +326,7 @@ class AnnouncementDetailView(GenericAPIView):
 
     def put(self, request, pk, format=None):
         announcement = self.get_object(pk)
-        serializer = AnnouncementSerializer(announcement, data=request.data)
+        serializer = AnnouncementSerializer(announcement, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -376,7 +376,7 @@ class AssetDetailView(GenericAPIView):
 
     def put(self, request, pk, format=None):
         Asset = self.get_object(pk)
-        serializer = FullAssetSerializer(Asset, data=request.data)
+        serializer = FullAssetSerializer(Asset, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
