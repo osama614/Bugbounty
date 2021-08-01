@@ -26,11 +26,16 @@ class BountyBarSerializer(serializers.ModelSerializer):
         model = BountyBar
         fields = ["level", "amount"]
 
+class AdminSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "username"]
+
 class ProgramSerializer1(serializers.ModelSerializer):
     bounty_bars = BountyBarSerializer(many=True)
     class Meta:
         model = Program
-        fields = ["id","logo", "company_name", "summery", "launch_date", "url","payings","balance", "status","bounty_bars"]
+        fields = ["admin","id","logo", "company_name", "summery", "launch_date", "url","payings","balance", "status","bounty_bars"]
         depth = 1
 
 class ReportLevelSerializer(serializers.Serializer):
@@ -122,7 +127,7 @@ class ProgramViewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Program
-        fields = ["admin","id","logo", "company_name","policy", "summery", "launch_date", "url","status","payings", "bounty_bars",
+        fields = ["id","logo", "company_name","policy", "summery", "launch_date", "url","status","payings", "bounty_bars",
           "announcements", "assets_count", "all_reports_count", 'resolved_reports_count', 'thanked_hackers_count', 'in_scope_assets', 'out_scope_assets']
         depth = 1
     
