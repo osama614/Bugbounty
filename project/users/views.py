@@ -16,7 +16,7 @@ import jwt
 from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from twilio.rest import Client
 from .utilities import Phone, Email
-from .permissions import IsVerified
+from .permissions import IsVerified, IsVerifiedPro
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.schemas.openapi import AutoSchema
 from rest_framework_simplejwt.serializers import TokenVerifySerializer
@@ -175,7 +175,7 @@ class CodeVerification(GenericAPIView):
        
 class ResetEmail(GenericAPIView):
      serializer_class = ResetEmailSerializer1
-     permission_classes = [IsAuthenticated]
+     permission_classes = [IsAuthenticated,IsVerifiedPro]
 
      def post(self, request):
         serializer = ResetEmailSerializer1(data=request.data)
