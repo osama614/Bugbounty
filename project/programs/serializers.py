@@ -99,14 +99,18 @@ class FullAssetSerializer(serializers.ModelSerializer):
         read_only=True,
         slug_field='name'
      )
-    class Meta:
+    class Meta: 
         model = Asset
         exclude = ["owner"]
+
+class AdminSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "username"]
 
 
 class ProgramViewSerializer(serializers.ModelSerializer):
     bounty_bars = BountyBarSerializer(many=True)
-    #thanked_hackers = ThankedHackerSerializer(many=True)
     announcements = AnnouncementSerializer(many=True)
     assets_count = serializers.SerializerMethodField()
     all_reports_count = serializers.SerializerMethodField()
@@ -114,10 +118,11 @@ class ProgramViewSerializer(serializers.ModelSerializer):
     thanked_hackers_count = serializers.SerializerMethodField()
     in_scope_assets = serializers.SerializerMethodField()
     out_scope_assets = serializers.SerializerMethodField()
+    admin = AdminSerializer()
 
     class Meta:
         model = Program
-        fields = ["id","logo", "company_name","policy", "summery", "launch_date", "url","status","payings", "bounty_bars",
+        fields = ["admin","id","logo", "company_name","policy", "summery", "launch_date", "url","status","payings", "bounty_bars",
           "announcements", "assets_count", "all_reports_count", 'resolved_reports_count', 'thanked_hackers_count', 'in_scope_assets', 'out_scope_assets']
         depth = 1
     
