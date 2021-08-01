@@ -4,7 +4,7 @@ from django.conf import settings
 from django.shortcuts import render
 from rest_framework.generics import CreateAPIView, GenericAPIView
 from rest_framework.views import APIView
-from .serializers import HackerSerializer, RefreshTokenSerializer, PhoneSerializer, CodeSerializer, ProgramSerializer, ResetEmailSerializer
+from .serializers import HackerSerializer, RefreshTokenSerializer, PhoneSerializer, CodeSerializer, ProgramSerializer, ResetEmailSerializer1
 from rest_framework.response import Response
 from rest_framework import serializers, status
 from rest_framework_simplejwt.tokens import RefreshToken, Token
@@ -174,20 +174,23 @@ class CodeVerification(GenericAPIView):
         return res
        
 class ResetEmail(GenericAPIView):
-     serializer_class = ResetEmailSerializer
-     permission_classes = [IsAuthenticated, IsVerified]
+     serializer_class = ResetEmailSerializer1
+     permission_classes = [IsAuthenticated]
 
      def post(self, request):
-        serializer = ResetEmailSerializer(data=request.data)
+        serializer = ResetEmailSerializer1(data=request.data)
         if serializer.is_valid():
-            password = request.data.get("current_password")
+            password = serializer.data.get("current_password")
             user = request.user
             if user.check_password(password):
-                user.email = request.data.get('new_email')
+                user.email = serializer.data.get('new_email')
                 user.verified_email = False
                 user.save()
                 Email.send_email(request, user, request.data.get('new_email'))
 
+                return Response({"message": "sent successfully"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"message": "This email is already in used"}, status=status.HTTP_404_NOT_FOUND)
             
 class LogoutView(GenericAPIView):
     """This API Take a valid refresh token from the current user then he destroy it so

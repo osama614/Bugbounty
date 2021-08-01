@@ -113,10 +113,17 @@ class CodeSerializer(serializers.Serializer):
     code = serializers.CharField(max_length=6, min_length=6)
     phone_number = PhoneNumberField(required=True, validators=[UniqueValidator(queryset=User.objects.all())])
 
-class ResetEmailSerializer(serializers.Serializer):
+class ResetEmailSerializer1(serializers.Serializer):
     current_password = serializers.CharField(required = True, style={"input_type": "password"})
-    new_email = serializers.EmailField(required = True, validators=[UniqueValidator(queryset=User.objects.all())])
+    new_email = serializers.EmailField(required = True)
 
+    def validate_new_email(self, value):
+            """
+            Check that the blog post is about Django.
+            """
+            if User.objects.filter(email=value).exists():
+                raise serializers.ValidationError("This email is already in used")
+            return value
 # class NavbarSerializer(serializers.ModelSerializer):
     
 #     class Meta:
