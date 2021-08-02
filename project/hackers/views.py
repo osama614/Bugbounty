@@ -1,4 +1,5 @@
 from django.db.models.aggregates import Count
+from django.http.response import Http404
 from .models import Report, OWASP10, Weakness
 from django.shortcuts import render
 from rest_framework.views import APIView
@@ -11,7 +12,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from .serializers import (DashHackerSerializer, DashUserSerializer, DashFilterSerializer, ActivitySerializer,
-                          HNavbarSerializer, ThankerSerializer, ProgramSerializer, ProfileSerializer)
+                          HNavbarSerializer, ThankerSerializer, ProgramSerializer, ProfileSerializer, AvaterSerializer)
 
 from programs.models import Level, Program
 from programs.serializers import ProgramSerializer1
@@ -133,25 +134,72 @@ class ProgramsListView (ListAPIView):
 class NavbarView(GenericAPIView):
 
     serializer_class = HNavbarSerializer
-
+    permission_classes = [IsAuthenticated, IsVerified]
     def get(self, request):
         user = request.user
         ser = HNavbarSerializer(user)
         return Response(ser.data, status=status.HTTP_200_OK)
 
 
+class ChangeAvaterView(GenericAPIView):
+    serializer_class = AvaterSerializer
+    permission_classes = [IsAuthenticated, IsVerified]
+    
+    def get(self, request):
+        hacker = request.user.hacker
+        if hacker:
+            ser_pro = AvaterSerializer(hacker)
+            return Response(ser_pro.data, status=status.HTTP_200_OK)
+        else:
+            raise Http404
+
+    def put(self,request):
+        hacker = request.user.hacker
+        if hacker:
+            ser_pro = AvaterSerializer(hacker, data=request.data, partial=True)
+            if ser_pro.is_valid():
+               ser_pro.save()
+               return Response(ser_pro.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(ser_pro.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            raise Http404
+
+            
 class UpdateProfileView(GenericAPIView):
     serializer_class = ProfileSerializer
     permission_classes = [IsAuthenticated, IsVerified]
+    
 
-    def post(self, request):
-        user = request.user
-
-        ser = ProfileSerializer(user, data=request.data, partial=True)
-        if ser.is_valid():
-            ser.save()
-            return Response(ser.data, status=status.HTTP_200_OK)
+    def get(self, request):
+        hacker = request.user
+        if hacker:
+            ser_pro = ProfileSerializer(hacker)
+            return Response(ser_pro.data, status=status.HTTP_200_OK)
         else:
-            return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
+            raise Http404
+
+    def put(self,request):
+        hacker = request.user.hacker
+        if hacker:
+            ser_pro = ProfileSerializer(hacker, data=request.data, partial=True)
+            if ser_pro.is_valid():
+               ser_pro.save()
+               return Response(ser_pro.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(ser_pro.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            raise Http404
+    
+    # def 
+    # def post(self, request):
+    #     user = request.user
+
+    #     ser = ProfileSerializer(user, data=request.data, partial=True)
+    #     if ser.is_valid():
+    #         ser.save()
+    #         return Response(ser.data, status=status.HTTP_200_OK)
+    #     else:
+    #         return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

@@ -123,8 +123,13 @@ class ProfileHackerSerializer(WritableNestedModelSerializer):
     skills = ProfileSkillSerializer(many=True)
     class Meta:
         model = Hacker
-        fields = ["avater", "linkedin", "github", "twitter", "skills"]
+        fields = ["linkedin", "github", "twitter", "skills"]
         depth=2
+
+class AvaterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Hacker
+        fields = ["avater"]
 
 class ProfileSerializer(WritableNestedModelSerializer):
     hacker = ProfileHackerSerializer()
