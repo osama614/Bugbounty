@@ -12,13 +12,18 @@ from rest_framework.permissions import IsAuthenticated
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from .serializers import (DashHackerSerializer, DashUserSerializer, DashFilterSerializer, ActivitySerializer,
-                          HNavbarSerializer, ThankerSerializer, ProgramSerializer, ProfileSerializer, AvaterSerializer)
+                          HNavbarSerializer, SettingsSkillSerializer, ThankerSerializer, ProgramSerializer, ProfileSerializer, AvaterSerializer)
 
 from programs.models import Level, Program
 from programs.serializers import ProgramSerializer1
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
+from rest_framework_bulk import (
+    BulkListSerializer,
+    BulkSerializerMixin,
+    ListBulkCreateUpdateDestroyAPIView,
+)
 
 
 User = get_user_model()
@@ -190,16 +195,15 @@ class UpdateProfileView(GenericAPIView):
                 return Response(ser_pro.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             raise Http404
-    
-    # def 
-    # def post(self, request):
-    #     user = request.user
 
-    #     ser = ProfileSerializer(user, data=request.data, partial=True)
-    #     if ser.is_valid():
-    #         ser.save()
-    #         return Response(ser.data, status=status.HTTP_200_OK)
-    #     else:
-    #         return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class SkillsView(ListBulkCreateUpdateDestroyAPIView):
+    serializer_class = SettingsSkillSerializer
+    permission_classes = [IsAuthenticated, IsVerified]    
+
+    def get_queryset(self):
+        
+        return self.request.user.hacker.skills.all() 
+    
 
 

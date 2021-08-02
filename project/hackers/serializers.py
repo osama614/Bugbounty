@@ -8,7 +8,11 @@ from rest_framework.validators import UniqueValidator
 from .models import Badge, Hacker, Skill, Report
 from drf_writable_nested.serializers import WritableNestedModelSerializer
 from django.db.models import Max, Sum
-
+from rest_framework_bulk import (
+    BulkListSerializer,
+    BulkSerializerMixin,
+    ListBulkCreateUpdateDestroyAPIView,
+)
 
 User = get_user_model()
 
@@ -123,7 +127,7 @@ class ProfileHackerSerializer(WritableNestedModelSerializer):
     skills = ProfileSkillSerializer(many=True)
     class Meta:
         model = Hacker
-        fields = ["linkedin", "github", "twitter", "skills"]
+        fields = ["linkedin", "github", "twitter"]
         depth=2
 
 class AvaterSerializer(serializers.ModelSerializer):
@@ -148,3 +152,10 @@ class HNavbarSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["id", "username", "hacker", "role"]
+
+
+class SettingsSkillSerializer(BulkSerializerMixin, serializers.ModelSerializer):
+    class Meta:
+        model = Skill
+        fields = "__all__"
+        list_serializer_class = BulkListSerializer
