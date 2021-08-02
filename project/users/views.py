@@ -44,7 +44,7 @@ class RegisterHacker(GenericAPIView):
                 username = serializer.data.get('username')
                 email = serializer.data.get('email')
                 user = User.objects.filter(username=username).first()
-                tokens = Email.send_email(request=request, user=user, email=email, type='hacker')
+                tokens = Email.send_email(request=request, user=user, email=email, type='hacker', phone_verification=user.verified_phone)
                 data["tokens"] = tokens
 
             except Exception as e:
@@ -187,7 +187,7 @@ class ResetEmail(GenericAPIView):
                 user.verified_email = False
                 user.save()
                 
-                Email.send_email(request, user, request.data.get('new_email'), type=user.role)
+                Email.send_email(request, user, request.data.get('new_email'), type=user.role, phone_verification=user.verified_phone)
                 
                 return Response({"message": "sent successfully"}, status=status.HTTP_200_OK)
         else:
