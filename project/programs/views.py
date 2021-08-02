@@ -376,7 +376,7 @@ class AssetDetailView(GenericAPIView):
 
     def put(self, request, pk, format=None):
         Asset = self.get_object(pk)
-        serializer = FullAssetSerializer(Asset, data=request.data, partial=True)
+        serializer = PostAssetSerializer(Asset, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
