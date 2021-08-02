@@ -1,3 +1,4 @@
+from project.users import admin
 from programs.models import Announcement
 from programs.models import Level, Program, Asset, BountyBar
 from phonenumber_field.serializerfields import PhoneNumberField
@@ -33,6 +34,7 @@ class AdminSerializer(serializers.ModelSerializer):
 
 class ProgramSerializer1(serializers.ModelSerializer):
     bounty_bars = BountyBarSerializer(many=True)
+    admin = AdminSerializer()
     class Meta:
         model = Program
         fields = ["admin","id","logo", "company_name", "summery", "launch_date", "url","payings","balance", "status","bounty_bars"]
@@ -123,7 +125,7 @@ class ProgramViewSerializer(serializers.ModelSerializer):
     thanked_hackers_count = serializers.SerializerMethodField()
     in_scope_assets = serializers.SerializerMethodField()
     out_scope_assets = serializers.SerializerMethodField()
-    admin = AdminSerializer()
+    #admin = AdminSerializer()
 
     class Meta:
         model = Program
