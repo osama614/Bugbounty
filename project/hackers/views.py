@@ -180,7 +180,7 @@ class UpdateProfileView(GenericAPIView):
             raise Http404
 
     def put(self,request):
-        hacker = request.user.hacker
+        hacker = request.user
         if hacker:
             ser_pro = ProfileSerializer(hacker, data=request.data, partial=True)
             if ser_pro.is_valid():
