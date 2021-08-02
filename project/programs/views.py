@@ -390,7 +390,7 @@ class AssetDetailView(GenericAPIView):
 class NavbarView(GenericAPIView):
 
     serializer_class = PNavbarSerializer
-    permission_classes = [IsAuthenticated, IsVerifiedPro]
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         user = request.user
         ser = PNavbarSerializer(user)
