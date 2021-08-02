@@ -44,7 +44,7 @@ class RegisterHacker(GenericAPIView):
                 username = serializer.data.get('username')
                 email = serializer.data.get('email')
                 user = User.objects.filter(username=username).first()
-                tokens = Email.send_email(request=request, user=user, email=email)
+                tokens = Email.send_email(request=request, user=user, email=email, type=None)
                 data["tokens"] = tokens
 
             except Exception as e:
@@ -75,7 +75,7 @@ class RegisterProgram(GenericAPIView):
                 username = serializer.data.get('username')
                 email = serializer.data.get('email')
                 user = User.objects.filter(username=username).first()
-                tokens = Email.send_email(request=request, user=user, email=email)
+                tokens = Email.send_email(request=request, user=user, email=email, type='program')
                 data["access_token"] = tokens.get('access_token')
                 data["refresh_token"] = tokens.get('refresh_token')
             except Exception as e:
