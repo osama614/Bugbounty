@@ -175,7 +175,7 @@ class CodeVerification(GenericAPIView):
        
 class ResetEmail(GenericAPIView):
      serializer_class = ResetEmailSerializer1
-     permission_classes = [IsAuthenticated,IsVerifiedPro]
+     permission_classes = [IsAuthenticated]
 
      def post(self, request):
         serializer = ResetEmailSerializer1(data=request.data)
@@ -186,8 +186,9 @@ class ResetEmail(GenericAPIView):
                 user.email = serializer.data.get('new_email')
                 user.verified_email = False
                 user.save()
+                
                 Email.send_email(request, user, request.data.get('new_email'))
-
+                
                 return Response({"message": "sent successfully"}, status=status.HTTP_200_OK)
         else:
             return Response({"message": "This email is already in used"}, status=status.HTTP_404_NOT_FOUND)
