@@ -10,7 +10,7 @@ from django.urls import reverse
 from twilio.http.http_client import TwilioHttpClient
 import os
 
-#proxy_client = TwilioHttpClient(proxy={'http': os.environ['http_proxy'], 'https': os.environ['https_proxy']})
+proxy_client = TwilioHttpClient(proxy={'http': os.environ['http_proxy'], 'https': os.environ['https_proxy']})
 
 
 
@@ -20,13 +20,14 @@ User = get_user_model()
 #account_sid = os.getenv("TWILIO_ACCOUNT_SID")
 
 # Your Auth Token from twilio.com/console
+
 #auth_token  = os.getenv("TWILIO_AUTH_TOKEN")
 
-auth_token = "75be0517d1a247262280da584c72a68d"
+auth_token = "b48c6b72752b052dff1661cce7d3e771"
 account_sid = "AC4cc10d126e83850b1cb5a3ad9c6e2194"
 
-#client = Client(account_sid, auth_token, http_client=proxy_client)
-client = Client(account_sid, auth_token)
+client = Client(account_sid, auth_token, http_client=proxy_client)
+#client = Client(account_sid, auth_token)
 #client = Client()
 
 class Phone:
@@ -75,13 +76,15 @@ class Phone:
 class Email:
 
     @staticmethod
-    def send_email(request, user, email):
+    def send_email(request, user, email, type, phone_verification):
         data = {}
         token = RefreshToken.for_user(user)
         access_token = token.access_token
         data["access_token"] = str(access_token)
         data["refresh_token"] = str(token)
-        verify_url = "https://development-verison.herokuapp.com/verify-email/?token="+str(access_token)
+        verify_url ="https://development-verison.herokuapp.com/verify-email/?phone_verification=" + str(phone_verification) + "&token="+str(access_token)
+        if type=="program":
+            verify_url = "https://development-verison.herokuapp.com/program/verify-email/?token="+str(access_token)
         email_message = f"""
         Hi {user.username}\n
         welcom on our great community.\n

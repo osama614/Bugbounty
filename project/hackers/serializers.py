@@ -124,7 +124,7 @@ class ProfileSkillSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 class ProfileHackerSerializer(WritableNestedModelSerializer):
-    skills = ProfileSkillSerializer(many=True)
+    #skills = ProfileSkillSerializer(many=True)
     class Meta:
         model = Hacker
         fields = ["linkedin", "github", "twitter"]
@@ -148,7 +148,7 @@ class AvaterSerializer(serializers.ModelSerializer):
 
 class HNavbarSerializer(serializers.ModelSerializer):
     hacker= AvaterSerializer()
-    
+
     class Meta:
         model = User
         fields = ["id", "username", "hacker", "role"]

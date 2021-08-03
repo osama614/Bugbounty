@@ -27,7 +27,7 @@ SECRET_KEY = 'or!473&bx2l4lc5vx^k=3#2@kh@jrv5g485btq5i+m9otzk0w8'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["bugbounty.pythonanywhere.com"]
 
 
 # Application definition
@@ -120,31 +120,22 @@ AUTHENTICATION_BACKENDS = [
 #     }
 #}
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'bugbounty$default',
-#         'USER': 'bugbounty',
-#         'PASSWORD': 'robot9000',
-#         'HOST': 'bugbounty.mysql.pythonanywhere-services.com',   # Or an IP Address that your DB is hosted on
-#         #'PORT': '3306',
-#     }
-# }
+DATABASES = {
+    'default': {
+         'ENGINE': 'django.db.backends.mysql',
+         'NAME': 'bugbounty$default',
+         'USER': 'bugbounty',
+         'PASSWORD': 'robot9000',
+         'HOST': 'bugbounty.mysql.pythonanywhere-services.com',   # Or an IP Address that your DB is hosted on
+         #'PORT': '3306',
+     }
+ }
 
 
 
 CORS_ALLOW_ALL_ORIGINS = True
 
-DATABASES = {
-      'default': {
-      'ENGINE': 'django.db.backends.postgresql',
-      'NAME': 'bugbounty',
-      'USER': 'postgres',
-      'PASSWORD': 'robot9000',
-      'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
-      'PORT': '5432',
-}
-}
+
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 

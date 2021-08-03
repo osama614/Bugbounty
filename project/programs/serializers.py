@@ -1,4 +1,4 @@
-from project.users import admin
+
 from programs.models import Announcement
 from programs.models import Level, Program, Asset, BountyBar
 from phonenumber_field.serializerfields import PhoneNumberField
@@ -106,7 +106,7 @@ class FullAssetSerializer(serializers.ModelSerializer):
         read_only=True,
         slug_field='name'
      )
-    class Meta: 
+    class Meta:
         model = Asset
         exclude = ["owner"]
 
@@ -132,7 +132,7 @@ class ProgramViewSerializer(serializers.ModelSerializer):
         fields = ["id","logo", "company_name","policy", "summery", "launch_date", "url","status","payings", "bounty_bars",
           "announcements", "assets_count", "all_reports_count", 'resolved_reports_count', 'thanked_hackers_count', 'in_scope_assets', 'out_scope_assets']
         depth = 1
-    
+
     def get_assets_count(self, obj):
         count = obj.program_assets.count()
         return count or 0
@@ -148,17 +148,17 @@ class ProgramViewSerializer(serializers.ModelSerializer):
     def get_thanked_hackers_count(self, obj):
         count = obj.thanked_hackers.count()
         return count or 0
-    
+
     def get_in_scope_assets(self, obj):
         assets = obj.program_assets.filter(in_scope=True).all()
         ser = FullAssetSerializer(assets, many=True)
-        
+
         return ser.data
-    
+
     def get_out_scope_assets(self, obj):
         assets = obj.program_assets.filter(in_scope=False).all()
         ser = FullAssetSerializer(assets, many=True)
-        
+
         return ser.data
 
 class LogoSerializer(serializers.ModelSerializer):

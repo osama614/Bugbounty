@@ -68,7 +68,7 @@ class Asset(models.Model):
     type = models.CharField(max_length=100, choices=TYPE_CHOICES, default="dm")
     paid = models.BooleanField(default=True)
     level = models.ForeignKey(Level, related_name='level_assets', on_delete=models.SET_NULL, null=True)
-    reward = models.FloatField(blank=True)
+    reward = models.FloatField(blank=True, default=0)
     description = models.TextField(max_length=300)
     owner = models.ForeignKey('Program', related_name='program_assets', on_delete=models.SET_NULL, null=True)
     in_scope = models.BooleanField(default=True)
@@ -87,9 +87,9 @@ class Announcement(models.Model):
     title = models.CharField(max_length=150)
     body = models.TextField(max_length=500)
     created = models.DateTimeField(auto_now_add=True)
-    published = models.DateTimeField(timezone.now())
+    published = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField()
-    
+
     class Meta:
         verbose_name = _('Announcement')
         verbose_name_plural = _('Announcements')
