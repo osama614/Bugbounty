@@ -1,4 +1,5 @@
 
+
 from django.db.models import fields
 from phonenumber_field.serializerfields import PhoneNumberField
 from phonenumber_field.validators import ValidationError
@@ -12,6 +13,7 @@ from drf_writable_nested.serializers import WritableNestedModelSerializer
 from programs.models import Program
 from hackers.models import Hacker
 from django.contrib.auth.models import Group 
+from hackers.models import Skill
 
 User = get_user_model()
 
@@ -73,9 +75,39 @@ class HackerSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(
             **validated_data
         )
-
+        SKILLS = [
+            {
+                "name": "API Testing",
+                "rating": 0
+            },
+            {
+                "name": "Automotive Testing",
+                "rating": 0
+            },
+             {
+                "name": "Bug bounty",
+                "rating": 0
+            },
+             {
+                "name": "Mobile Application Testing",
+                "rating": 0
+            },
+             {
+                "name": "Network Testing",
+                "rating": 0
+            },
+             {
+                "name": "Website Testing",
+                "rating": 0
+            },
+        ]
         user.set_password(validated_data['password'])
-        Hacker.objects.create(account=user)
+        H =  Hacker.objects.create(account=user)
+        
+
+        for skill in SKILLS:
+            H.skills.create(**skill)
+         
         user.role = User.HACKER
         group = Group.objects.get(name='hackers')
         user.groups.add(group)
