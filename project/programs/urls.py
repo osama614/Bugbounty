@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (AssetDetailView, AssetListView, ChangeLogoView, CompanyInfoView, CompanyPolicy, NavbarView, ProgramInfoView,ReportsAsset,ReportsClosedState, ReportsLevel,
                    ReportsOwasp, ReportsWeakness, ReportsActivity, ProgramView, AnnouncementListView, 
-                    AnnouncementDetailView, RewardsView)
+                    AnnouncementDetailView, RewardsView, upload_policy_image)
 
 
 app_name = "programs"
@@ -24,4 +24,5 @@ urlpatterns = [
     path('dashboard/settings/company-policy', CompanyPolicy.as_view(), name='settings-company-policy'),
     path('dashboard/settings/rewards', RewardsView.as_view(), name='settings-rewards'),
     path('navbar/', NavbarView.as_view(), name='navbar'),
+    path('policy-image/', upload_policy_image , name='policy-image')
 ]
