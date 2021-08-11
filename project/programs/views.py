@@ -7,7 +7,7 @@ from hackers.models import Report, OWASP10, Weakness
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.generics import  GenericAPIView, ListAPIView, ListCreateAPIView, RetrieveUpdateAPIView
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from users.permissions import IsVerified, IsVerifiedPro
@@ -24,6 +24,11 @@ from rest_framework_bulk import (
     BulkSerializerMixin,
     ListBulkCreateUpdateDestroyAPIView,
 )
+
+import os
+from django.utils import timezone
+from django.conf import settings
+
 
 User = get_user_model()
 # Create your views here.
@@ -397,5 +402,34 @@ class NavbarView(GenericAPIView):
         return Response(ser.data, status=status.HTTP_200_OK)
 
 
+# upload policies images
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def upload_policy_image(request):
+    user = request.user
+    img = request.FILES['image']
+    img_extension = os.path.splitext(img.name)[1]
+    img_name = os.path.splitext(img.name)[0]
+    root = settings.MEDIA_ROOT
+    media = str(root).split('\\')[-1]
+    dirs = 'program\plicy\\' + str(user.username) 
+    user_folder = str(root) + dirs
+    print(os.path.exists(user_folder))
+    if not os.path.exists(user_folder):
+        os.makedirs(user_folder)
+        
 
+    img_save_path = "%s\%s%s" %(user_folder,img_name, img_extension)
+    path = "%s\%s\%s%s"%(media,dirs,img_name , img_extension)
+    while os.path.exists(img_save_path):
+        n = 1
+        img_name += str(n)
+        img_save_path = "%s\%s%s" %(user_folder,img_name, img_extension)
+        path = "%s\%s\%s%s"%(media,dirs,img_name , img_extension)
+        n += 1
 
+    with open(img_save_path, 'wb+') as f:
+        for chunk in img.chunks():
+            f.write(chunk)
+    
+    return Response({"path": path}, status=status.HTTP_201_CREATED)
