@@ -10,11 +10,11 @@ from rest_framework.generics import  GenericAPIView, ListAPIView, ListCreateAPIV
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
-from users.permissions import IsVerified, IsVerifiedPro
+from users.permissions import IsVerifiedEmail, IsVerifiedPhone
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from .serializers import (BountyBarSerializer, PNavbarSerializer, PolicySerializer, PostAssetSerializer, ProgramSerializer1, ReportLevelSerializer, ProActivitySerializer, AssetSerializer, 
+from .serializers import (BountyBarSerializer, PNavbarSerializer, PolicySerializer, PostAssetSerializer, ProgramSerializer1, ReportLevelSerializer, ProActivitySerializer, AssetSerializer,
                             ReportStateSerializer, ProgramViewSerializer, CompanyInfoSerializer, LogoSerializer, RewardSerializer,
                             ThankedHackerSerializer, AnnouncementSerializer, FullAssetSerializer)
 from .models import Level, Program, Asset, Announcement
@@ -33,7 +33,7 @@ from django.conf import settings
 User = get_user_model()
 # Create your views here.
 class ProgramInfoView(GenericAPIView):
-    permission_classes = [IsAuthenticated, IsVerifiedPro]
+    permission_classes = [IsAuthenticated, IsVerifiedEmail]
     """
     This API Is used to return the program Information.
     """
@@ -52,7 +52,7 @@ class ReportsLevel(GenericAPIView):
     """
     This api is responsible for returning all the Program reports filtered by it's level
     """
-    permission_classes = [IsAuthenticated, IsVerifiedPro]
+    permission_classes = [IsAuthenticated, IsVerifiedEmail]
     serializer_class = ReportLevelSerializer
 
     def get(self, request):
@@ -82,7 +82,7 @@ class ReportsOwasp(GenericAPIView):
     """
     This api is responsible for returning all the user reports filtered by it's 10 Owasp vurnibiblity.
     """
-    permission_classes = [IsAuthenticated, IsVerifiedPro]
+    permission_classes = [IsAuthenticated, IsVerifiedEmail]
     serializer_class = ReportLevelSerializer
     def get(self, request):
         current_user = request.user
@@ -97,7 +97,7 @@ class ReportsWeakness(GenericAPIView):
     """
     This api is responsible for returning all the user reports filtered by it's Weakness that he found.
     """
-    permission_classes = [IsAuthenticated, IsVerifiedPro]
+    permission_classes = [IsAuthenticated, IsVerifiedEmail]
     serializer_class = ReportLevelSerializer
     def get(self, request):
         current_user = request.user
@@ -114,7 +114,7 @@ class ReportsAsset(GenericAPIView):
     """
     This api is responsible for returning all the user reports filtered by it's Weakness that he found.
     """
-    permission_classes = [IsAuthenticated, IsVerifiedPro]
+    permission_classes = [IsAuthenticated, IsVerifiedEmail]
     serializer_class = AssetSerializer
     def get(self, request):
         current_user = request.user
@@ -131,7 +131,7 @@ class ReportsClosedState(GenericAPIView):
     """
     This api is responsible for returning all the user reports filtered by it's Weakness that he found.
     """
-    permission_classes = [IsAuthenticated, IsVerifiedPro]
+    permission_classes = [IsAuthenticated, IsVerifiedEmail]
     serializer_class = ReportStateSerializer
     def get(self, request):
         current_user = request.user
@@ -149,7 +149,7 @@ class ReportsActivity(GenericAPIView):
     """
     This api is responsible for returning all the user on the website.
     """
-    permission_classes = [IsAuthenticated, IsVerifiedPro]
+    permission_classes = [IsAuthenticated, IsVerifiedEmail]
     serializer_class = ProActivitySerializer
 
     def get(self, request):
@@ -160,7 +160,7 @@ class ReportsActivity(GenericAPIView):
         ser = ProActivitySerializer(reports, many=True)
 
         return Response(ser.data, status=status.HTTP_200_OK)
-        
+
 class ProgramView(GenericAPIView):
     permission_classes = [AllowAny]
     serializer_class = (ProgramViewSerializer,ThankedHackerSerializer)
@@ -184,8 +184,8 @@ class ProgramView(GenericAPIView):
 
 class ChangeLogoView(GenericAPIView):
     serializer_class = LogoSerializer
-    permission_classes = [IsAuthenticated, IsVerifiedPro]
-    
+    permission_classes = [IsAuthenticated, IsVerifiedEmail]
+
     def get(self, request):
         program = request.user.program
         if program:
@@ -209,8 +209,8 @@ class ChangeLogoView(GenericAPIView):
 
 class CompanyInfoView(GenericAPIView):
     serializer_class = CompanyInfoSerializer
-    permission_classes = [IsAuthenticated, IsVerifiedPro]
-    
+    permission_classes = [IsAuthenticated, IsVerifiedEmail]
+
     def get(self, request):
         program = request.user.program
         if program:
@@ -233,18 +233,18 @@ class CompanyInfoView(GenericAPIView):
 
 class RewardsView(ListBulkCreateUpdateDestroyAPIView):
     serializer_class = RewardSerializer
-    permission_classes = [IsAuthenticated, IsVerifiedPro]    
+    permission_classes = [IsAuthenticated, IsVerifiedEmail]
 
     def get_queryset(self):
-        
+
         return self.request.user.program.bounty_bars
 
 
 
 # class RewardsView(GenericAPIView):
 #     serializer_class = RewardSerializer
-#     permission_classes = [IsAuthenticated, IsVerifiedPro]
-    
+#     permission_classes = [IsAuthenticated, IsVerifiedEmail]
+
 #     def get(self, request):
 #         rewards = request.user.program.bounty_bars
 #         if rewards:
@@ -252,7 +252,7 @@ class RewardsView(ListBulkCreateUpdateDestroyAPIView):
 #             return Response(ser_pro.data, status=status.HTTP_200_OK)
 #         else:
 #             raise Http404
-    
+
 #     def post(self, request):
 
 #             ser_pro = RewardSerializer(data=request.data,many=True)
@@ -261,7 +261,7 @@ class RewardsView(ListBulkCreateUpdateDestroyAPIView):
 #                return Response(ser_pro.data, status=status.HTTP_201_CREATED)
 #             else:
 #                 return Response(ser_pro.errors, status=status.HTTP_400_BAD_REQUEST)
-       
+
 
 #     def put(self,request):
 #         rewards = request.user.program.bounty_bars
@@ -278,8 +278,8 @@ class RewardsView(ListBulkCreateUpdateDestroyAPIView):
 
 class CompanyPolicy(GenericAPIView):
     serializer_class = PolicySerializer
-    permission_classes = [IsAuthenticated, IsVerifiedPro]
-    
+    permission_classes = [IsAuthenticated, IsVerifiedEmail]
+
     def get(self, request):
         policy = request.user.program
         if policy:
@@ -287,7 +287,7 @@ class CompanyPolicy(GenericAPIView):
             return Response(ser_pro.data, status=status.HTTP_200_OK)
         else:
             raise Http404
-    
+
     def put(self,request):
         policy = request.user.program
         if policy:
@@ -304,20 +304,20 @@ class CompanyPolicy(GenericAPIView):
 
 class AnnouncementListView(ListCreateAPIView):
     serializer_class = AnnouncementSerializer
-    permission_classes = [IsAuthenticated, IsVerifiedPro]
+    permission_classes = [IsAuthenticated, IsVerifiedEmail]
 
     def get_queryset(self):
         program = self.request.user.program
         announcements = program.announcements
         return announcements
-        
- 
+
+
 class AnnouncementDetailView(GenericAPIView):
 
     """
     Retrieve, update or delete a announcement instance.
     """
-    permission_classes = [IsAuthenticated, IsVerifiedPro]
+    permission_classes = [IsAuthenticated, IsVerifiedEmail]
     def get_object(self, pk):
         try:
             return Announcement.objects.get(pk=pk)
@@ -344,7 +344,7 @@ class AnnouncementDetailView(GenericAPIView):
 
 class AssetListView(ListCreateAPIView):
     #serializer_class = PostAssetSerializer
-    permission_classes = [IsAuthenticated, IsVerifiedPro]
+    permission_classes = [IsAuthenticated, IsVerifiedEmail]
 
     def get_serializer_class(self):
         if self.request.method == "POST":
@@ -356,7 +356,7 @@ class AssetListView(ListCreateAPIView):
         program = self.request.user.program
         Assets = program.program_assets
         return Assets
-        
+
 
 
 
@@ -366,7 +366,7 @@ class AssetDetailView(GenericAPIView):
     Retrieve, update or delete a Asset instance.
 
     """
-    permission_classes = [IsAuthenticated, IsVerifiedPro]
+    permission_classes = [IsAuthenticated, IsVerifiedEmail]
 
     def get_object(self, pk):
         try:
@@ -403,33 +403,34 @@ class NavbarView(GenericAPIView):
 
 
 # upload policies images
+
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAuthenticated])
 def upload_policy_image(request):
     user = request.user
     img = request.FILES['image']
     img_extension = os.path.splitext(img.name)[1]
     img_name = os.path.splitext(img.name)[0]
     root = settings.MEDIA_ROOT
-    media = str(root).split('\\')[-1]
-    dirs = 'program\plicy\\' + str(user.username) 
+    media = str(root).split('/')[-1]
+    dirs = '/program/policy/' + str(user.username)
     user_folder = str(root) + dirs
     print(os.path.exists(user_folder))
     if not os.path.exists(user_folder):
         os.makedirs(user_folder)
-        
 
-    img_save_path = "%s\%s%s" %(user_folder,img_name, img_extension)
-    path = "%s\%s\%s%s"%(media,dirs,img_name , img_extension)
+
+    img_save_path = "%s/%s%s" %(user_folder,img_name, img_extension)
+    path = "%s%s/%s%s"%(media,dirs,img_name , img_extension)
     while os.path.exists(img_save_path):
         n = 1
         img_name += str(n)
-        img_save_path = "%s\%s%s" %(user_folder,img_name, img_extension)
-        path = "%s\%s\%s%s"%(media,dirs,img_name , img_extension)
+        img_save_path = "%s/%s%s" %(user_folder,img_name, img_extension)
+        path = "%s%s/%s%s"%(media,dirs,img_name , img_extension)
         n += 1
 
     with open(img_save_path, 'wb+') as f:
         for chunk in img.chunks():
             f.write(chunk)
-    
+
     return Response({"path": path}, status=status.HTTP_201_CREATED)

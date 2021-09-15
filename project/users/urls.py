@@ -9,7 +9,7 @@ urlpatterns = [
     path('programs/signup/', RegisterProgram.as_view()),
     path('hackers/signup/', RegisterHacker.as_view()),
     path('verify-email/', VerifyEmail.as_view(), name='verify-email'),
-    path('resend-email/', ResendEmail.as_view(), name='resend-email'),
+    path('hackers/resend-email/', ResendEmail.as_view(), name='resend-email'),
     path('reset-email/', ResetEmail.as_view(), name='reset-email'),
     path('hackers/verify-phone/', PhoneVerification.as_view(), name='verify-phone'),
     path('hackers/resend-code/', resend_code, name='resend_code'),

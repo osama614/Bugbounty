@@ -16,7 +16,7 @@ import jwt
 from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from twilio.rest import Client
 from .utilities import Phone, Email
-from .permissions import IsVerified, IsVerifiedPro
+#from .permissions import IsVerified, IsVerifiedPro
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.schemas.openapi import AutoSchema
 from rest_framework_simplejwt.serializers import TokenVerifySerializer
@@ -75,7 +75,7 @@ class RegisterProgram(GenericAPIView):
                 username = serializer.data.get('username')
                 email = serializer.data.get('email')
                 user = User.objects.filter(username=username).first()
-                tokens = Email.send_email(request=request, user=user, email=email, type='program')
+                tokens = Email.send_email(request=request, user=user, email=email, type='program', phone_verification=user.verified_phone)
                 data["access_token"] = tokens.get('access_token')
                 data["refresh_token"] = tokens.get('refresh_token')
             except Exception as e:
@@ -93,7 +93,7 @@ class ResendEmail(GenericAPIView):
         user = request.user
         try:
             email = user.email
-            tokens = Email.send_email(request=request, user=user, email=email)
+            tokens = Email.send_email(request=request, user=user, email=email, type=user.role, phone_verification=user.verified_phone)
 
         except Exception as e:
             return Response({"message": f"error {e}"}, status=status.HTTP_400_BAD_REQUEST)
@@ -172,7 +172,7 @@ class CodeVerification(GenericAPIView):
         res = Phone.check_verification(phone=phone_number, code=code)
 
         return res
-       
+
 class ResetEmail(GenericAPIView):
      serializer_class = ResetEmailSerializer1
      permission_classes = [IsAuthenticated]
@@ -183,16 +183,19 @@ class ResetEmail(GenericAPIView):
             password = serializer.data.get("current_password")
             user = request.user
             if user.check_password(password):
-                user.email = serializer.data.get('new_email')
-                user.verified_email = False
-                user.save()
-                
-                Email.send_email(request, user, request.data.get('new_email'), type=user.role, phone_verification=user.verified_phone)
-                
-                return Response({"message": "sent successfully"}, status=status.HTTP_200_OK)
+                try:
+                    user.email = serializer.data.get('new_email')
+                    user.verified_email = False
+                    user.save()
+
+                    Email.send_email(request, user, request.data.get('new_email'), type=user.role, phone_verification=user.verified_phone)
+
+                    return Response({"message": "sent successfully"}, status=status.HTTP_200_OK)
+                except:
+                    Response({"message": "email problem"}, status=status.HTTP_404_NOT_FOUND)
         else:
             return Response({"message": "This email is already in used"}, status=status.HTTP_404_NOT_FOUND)
-            
+
 class LogoutView(GenericAPIView):
     """This API Take a valid refresh token from the current user then he destroy it so
         you can't use it any more and you then delete the 'access_token' from your local storege and redirect the user to the login page.

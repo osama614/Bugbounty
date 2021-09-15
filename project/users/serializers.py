@@ -10,10 +10,10 @@ from rest_framework.validators import UniqueValidator
 from django.utils.text import gettext_lazy as _
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from drf_writable_nested.serializers import WritableNestedModelSerializer
-from programs.models import Program
+from programs.models import Program, Level
 from hackers.models import Hacker
-from django.contrib.auth.models import Group 
-from hackers.models import Skill
+from django.contrib.auth.models import Group
+from hackers.models import Skill, HackerSkills
 
 User = get_user_model()
 
@@ -41,8 +41,26 @@ class ProgramSerializer(serializers.ModelSerializer):
         }
         read_only_fields = ('id',"groups", 'role')
         depth = 2
-    
+
     def create(self, validated_data):
+        REWARDS = [
+            {
+            "level": 2,
+            "amount": 0,
+                },
+             {
+            "level": 3,
+            "amount": 0,
+                },
+             {
+            "level": 4,
+            "amount": 0,
+                },
+             {
+            "level": 5,
+            "amount": 0,
+                },
+        ]
         password = validated_data.pop("password")
         program_data = validated_data.pop("program")
         print(program_data)
@@ -51,13 +69,20 @@ class ProgramSerializer(serializers.ModelSerializer):
         )
         print(user)
         user.set_password(password)
-        Program.objects.create(admin=user, **program_data)
+        P = Program.objects.create(admin=user, **program_data)
+
+        for reward in REWARDS:
+            level = Level.objects.get(id=reward.get('level'))
+            reward['level'] = level
+            P.bounty_bars.create(**reward)
+
+
         user.role = User.PROGRAM
         group = Group.objects.get(name='programs')
         user.groups.add(group)
         user.save()
         return user
-        
+
 
 class HackerSerializer(serializers.ModelSerializer):
 
@@ -77,37 +102,38 @@ class HackerSerializer(serializers.ModelSerializer):
         )
         SKILLS = [
             {
-                "name": "API Testing",
+                "skill": 1,
                 "rating": 0
             },
             {
-                "name": "Automotive Testing",
+                "skill": 2,
                 "rating": 0
             },
              {
-                "name": "Bug bounty",
+                "skill": 3,
                 "rating": 0
             },
              {
-                "name": "Mobile Application Testing",
+                "skill": 4,
                 "rating": 0
             },
              {
-                "name": "Network Testing",
+                "skill": 5,
                 "rating": 0
             },
              {
-                "name": "Website Testing",
+                "skill": 6,
                 "rating": 0
             },
         ]
         user.set_password(validated_data['password'])
         H =  Hacker.objects.create(account=user)
-        
 
-        for skill in SKILLS:
-            H.skills.create(**skill)
-         
+
+        skills = Skill.objects.all()
+        for skill in skills:
+            HackerSkills.objects.create(hacker = H, skill=skill, rating=0)
+
         user.role = User.HACKER
         group = Group.objects.get(name='hackers')
         user.groups.add(group)
@@ -157,7 +183,7 @@ class ResetEmailSerializer1(serializers.Serializer):
                 raise serializers.ValidationError("This email is already in used")
             return value
 # class NavbarSerializer(serializers.ModelSerializer):
-    
+
 #     class Meta:
 #         model = User
 #         fields = ["id", "username", "hacker__avater", "role"]

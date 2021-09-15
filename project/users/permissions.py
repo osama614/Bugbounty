@@ -1,20 +1,29 @@
 from rest_framework.permissions import BasePermission
 
-class IsVerified(BasePermission):
-    message = "You should verify your email and phone to get access to the dashboard"
+class IsVerifiedEmail(BasePermission):
+    message = {
+                "message":"You should verify your email get access to the dashboard !",
+                "verification_step": "email",
+
+              }
 
     def has_permission(self, request, view):
-        if request.user.verified_email and request.user.verified_phone:
+        if request.user.verified_email:
             return True
 
         else:
             return False
 
-class IsVerifiedPro(BasePermission):
-    message = "You should verify your email to get access to the dashboard"
+class IsVerifiedPhone(BasePermission):
+    message = {
+                "message":"You should verify your phone to get access to the dashboard !",
+                "verification_step": "phone",
+
+              }
+
 
     def has_permission(self, request, view):
-        if request.user.verified_email:
+        if request.user.verified_phone:
             return True
 
         else:

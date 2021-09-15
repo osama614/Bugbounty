@@ -31,9 +31,9 @@ class Program(models.Model):
         ("eligable","Eligable")
 
     )
-    admin = models.OneToOneField(settings.AUTH_USER_MODEL, related_name="program" ,null=True, on_delete=models.CASCADE)
+    admin = models.OneToOneField(settings.AUTH_USER_MODEL, related_name="program" , on_delete=models.CASCADE)
     company_name = models.CharField(max_length=100)
-    logo = models.ImageField(upload_to=upload_logo)
+    logo = models.ImageField(upload_to=upload_logo, null=True)
     url = models.URLField()
     policy = models.TextField()
     summery = models.TextField(blank=True)
@@ -41,6 +41,7 @@ class Program(models.Model):
     balance = models.DecimalField(max_digits=7, decimal_places=2, blank=True, null=True)
     payings = models.DecimalField(max_digits=7, decimal_places=2, blank=True, null=True)
     status =  models.CharField(max_length=100, choices=STATUS_CHOICES, default="opened")
+    is_active = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = _('Program')
@@ -69,7 +70,7 @@ class Asset(models.Model):
     paid = models.BooleanField(default=True)
     level = models.ForeignKey(Level, related_name='level_assets', on_delete=models.SET_NULL, null=True)
     reward = models.FloatField(blank=True, default=0)
-    description = models.TextField(max_length=300)
+    description = models.TextField(max_length=300, blank=True)
     owner = models.ForeignKey('Program', related_name='program_assets', on_delete=models.SET_NULL, null=True)
     in_scope = models.BooleanField(default=True)
 
@@ -85,7 +86,7 @@ class Announcement(models.Model):
     program = models.ForeignKey(Program, related_name="announcements", null=True, on_delete=models.CASCADE)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="announcements", null=True, on_delete=models.CASCADE)
     title = models.CharField(max_length=150)
-    body = models.TextField(max_length=500)
+    body = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
     published = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField()

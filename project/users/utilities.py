@@ -10,7 +10,7 @@ from django.urls import reverse
 from twilio.http.http_client import TwilioHttpClient
 import os
 
-proxy_client = TwilioHttpClient(proxy={'http': os.environ['http_proxy'], 'https': os.environ['https_proxy']})
+#proxy_client = TwilioHttpClient(proxy={ 'https': os.environ['https_proxy']})
 
 
 
@@ -26,8 +26,8 @@ User = get_user_model()
 auth_token = "b48c6b72752b052dff1661cce7d3e771"
 account_sid = "AC4cc10d126e83850b1cb5a3ad9c6e2194"
 
-client = Client(account_sid, auth_token, http_client=proxy_client)
-#client = Client(account_sid, auth_token)
+#client = Client(account_sid, auth_token, http_client=proxy_client)
+client = Client(account_sid, auth_token)
 #client = Client()
 
 class Phone:
@@ -77,6 +77,7 @@ class Email:
 
     @staticmethod
     def send_email(request, user, email, type, phone_verification):
+
         data = {}
         token = RefreshToken.for_user(user)
         access_token = token.access_token
@@ -91,6 +92,10 @@ class Email:
         please click the link below to verify your email.\n
         {verify_url}
         """
-        send_mail(message=email_message, subject="email confirmation", from_email=settings.EMAIL_HOST_USER, recipient_list=[email])
+        try:
+            send_mail(message=email_message, subject="email confirmation", from_email=settings.EMAIL_HOST_USER, recipient_list=[email])
+        except:
+            return Response({"message": 'something wrong with email'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
 
-        return data
+            return data

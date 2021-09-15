@@ -37,7 +37,7 @@ class ProgramSerializer1(serializers.ModelSerializer):
     admin = AdminSerializer()
     class Meta:
         model = Program
-        fields = ["admin","id","logo", "company_name", "summery", "launch_date", "url","payings","balance", "status","bounty_bars"]
+        fields = ["admin","id","logo", "company_name", "summery", "launch_date", "url","payings","balance", "status","bounty_bars", "is_active"]
         depth = 1
 
 class ReportLevelSerializer(serializers.Serializer):
