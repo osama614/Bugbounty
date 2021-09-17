@@ -9,6 +9,7 @@ from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.validators import MaxValueValidator, MinValueValidator
+from notifications.signals import notify
 
 user = get_user_model()
 
@@ -96,8 +97,6 @@ class Report(models.Model):
     triage_state = models.CharField(choices=TRIAGE_STATES, default='reviewing', max_length=100, blank=True)
     open_state = models.CharField(choices=OPEN_STATES, default='processing', max_length=100, blank=True)
     close_state = models.CharField(choices=CLOSE_STATES, max_length=100, blank=True)
-    #attachment = models.FileField(upload_to=upload_attachment)
-    #video = models.TextField()
     level = models.ForeignKey(Level, related_name="level_reports" ,null=True, on_delete=models.SET_NULL)
     weakness = models.ForeignKey(Weakness, related_name="weakness_reports" ,null=True, on_delete=models.SET_NULL)
     owasp10 = models.ForeignKey(OWASP10, related_name="owasp10_reports" ,null=True, on_delete=models.SET_NULL)
@@ -107,9 +106,8 @@ class Report(models.Model):
     submitted_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     closed_at = models.DateTimeField(auto_now_add=True)
-    contributors = models.ManyToManyField(user, related_name='reports')
+    contributors = models.ManyToManyField(user, related_name='reports_work')
     visibale = models.BooleanField(default=False)
-    #bounty = models.ForeignKey("Bounty", related_name="reports", blank=True ,null=True, on_delete=models.SET_NULL)
 
     class Meta:
         verbose_name = _('Report')
@@ -148,6 +146,7 @@ class Event(models.Model):
                     (4,'hight'),
                     (5,'critical')
                     )
+
     verb = models.CharField(choices=EVENT_TYPE, blank=True, max_length=150)
     actor = models.ForeignKey(user, related_name="event", on_delete=models.CASCADE)
     level = models.CharField(choices=LEVEL_CHOICES, blank=True, max_length=150,null=True)
@@ -168,8 +167,29 @@ class Event(models.Model):
     def __str__(self):
        return f"{self.actor} {self.verb}"
 
+
+@receiver(post_save, sender=Event)
+def event_handeler(sender, instance, created, *args, **kwargs):
+    
+    if created:
+        recipient = []
+        recipient.append(instance.timeline.report.reported_to.admin)
+        recipient.append(instance.timeline.report.owner.account)
+        print(recipient)
+        notify.send(sender=instance.actor, recipient=recipient, verb=instance.verb, target=instance.timeline.report)
+       
+
 class TimeLine(models.Model):
     report = models.OneToOneField(Report, related_name='time_line', on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = _('TimeLine')
+        verbose_name_plural = _('TimeLines')
+
+
+    def __str__(self):
+
+       return f"Timeline of {self.report.title}"
 
 
 class ReportAttachments(models.Model):

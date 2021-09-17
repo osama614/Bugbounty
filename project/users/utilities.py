@@ -9,6 +9,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 from twilio.http.http_client import TwilioHttpClient
 import os
+from celery import shared_task
 
 #proxy_client = TwilioHttpClient(proxy={ 'https': os.environ['https_proxy']})
 
@@ -33,6 +34,7 @@ client = Client(account_sid, auth_token)
 class Phone:
 
     @staticmethod
+    @shared_task
     def start_verification(to, channel='sms'):
 
         if channel not in ('sms', 'call'):
@@ -50,6 +52,7 @@ class Phone:
             return Response({"message": "Error validating code: {}".format(e)}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
     @staticmethod
+    @shared_task
     def check_verification(phone, code):
 
         service = "VA5b18bed7b92ffda2cd090e88b6dadb16"
@@ -73,29 +76,26 @@ class Phone:
         except Exception as e:
             return Response({"message": "Error validating code: {}".format(e)}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
-class Email:
 
-    @staticmethod
-    def send_email(request, user, email, type, phone_verification):
 
-        data = {}
-        token = RefreshToken.for_user(user)
-        access_token = token.access_token
-        data["access_token"] = str(access_token)
-        data["refresh_token"] = str(token)
-        verify_url ="https://development-verison.herokuapp.com/verify-email/?phone_verification=" + str(phone_verification) + "&token="+str(access_token)
-        if type=="program":
-            verify_url = "https://development-verison.herokuapp.com/program/verify-email/?token="+str(access_token)
-        email_message = f"""
-        Hi {user.username}\n
-        welcom on our great community.\n
-        please click the link below to verify your email.\n
-        {verify_url}
-        """
-        try:
-            send_mail(message=email_message, subject="email confirmation", from_email=settings.EMAIL_HOST_USER, recipient_list=[email])
-        except:
-            return Response({"message": 'something wrong with email'}, status=status.HTTP_400_BAD_REQUEST)
-        else:
+@shared_task
+def send_email(username, email, type, access_token, phone_verification):
+   
+   
+    
+    verify_url ="https://development-verison.herokuapp.com/verify-email/?phone_verification=" + str(phone_verification) + "&token="+str(access_token)
+    if type=="program":
+        verify_url = "https://development-verison.herokuapp.com/program/verify-email/?token="+str(access_token)
+    email_message = f"""
+    Hi {username}\n
+    welcom on our great community.\n
+    please click the link below to verify your email.\n
+    {verify_url}
+    """
+    try:
+        send_mail(message=email_message, subject="email confirmation", from_email=settings.EMAIL_HOST_USER, recipient_list=[email], fail_silently=False)
+    except:
+        return Response({"message": 'something wrong with email'}, status=status.HTTP_400_BAD_REQUEST)
+    else:
 
-            return data
+        return "Done"

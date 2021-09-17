@@ -10,17 +10,16 @@ from rest_framework import serializers, status
 from rest_framework_simplejwt.tokens import RefreshToken, Token
 from django.contrib.auth import get_user_model
 from django.contrib.sites.shortcuts import get_current_site
-from django.urls import reverse
-from django.core.mail import send_mail
 import jwt
 from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from twilio.rest import Client
-from .utilities import Phone, Email
+from .utilities import Phone
 #from .permissions import IsVerified, IsVerifiedPro
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.schemas.openapi import AutoSchema
 from rest_framework_simplejwt.serializers import TokenVerifySerializer
 from rest_framework.throttling import UserRateThrottle
+from .tasks import send_email
 
 User = get_user_model()
 # Create your views here.
@@ -44,12 +43,17 @@ class RegisterHacker(GenericAPIView):
                 username = serializer.data.get('username')
                 email = serializer.data.get('email')
                 user = User.objects.filter(username=username).first()
-                tokens = Email.send_email(request=request, user=user, email=email, type='hacker', phone_verification=user.verified_phone)
-                data["tokens"] = tokens
+                token = RefreshToken.for_user(user)
+                access_token = str(token.access_token)
+                data["access_token"] = str(access_token)
+                data["refresh_token"] = str(token)
+                send_email.delay(username=username, email=email, type='hacker', access_token=access_token, phone_verification = user.verified_phone)
+                #data["tokens"] = tokens
 
             except Exception as e:
                 return Response({"message": f"error {e}"}, status=status.HTTP_400_BAD_REQUEST)
             else:
+                #print(data)
                 return Response(data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -75,9 +79,12 @@ class RegisterProgram(GenericAPIView):
                 username = serializer.data.get('username')
                 email = serializer.data.get('email')
                 user = User.objects.filter(username=username).first()
-                tokens = Email.send_email(request=request, user=user, email=email, type='program', phone_verification=user.verified_phone)
-                data["access_token"] = tokens.get('access_token')
-                data["refresh_token"] = tokens.get('refresh_token')
+                token = RefreshToken.for_user(user)
+                access_token = str(token.access_token)
+                data["access_token"] = str(access_token)
+                data["refresh_token"] = str(token)
+                send_email.delay(username=username, email=email, type='program', access_token=access_token, phone_verification = user.verified_phone)
+
             except Exception as e:
                 return Response({"message": f"error {e}"}, status=status.HTTP_400_BAD_REQUEST)
             else:
@@ -93,7 +100,7 @@ class ResendEmail(GenericAPIView):
         user = request.user
         try:
             email = user.email
-            tokens = Email.send_email(request=request, user=user, email=email, type=user.role, phone_verification=user.verified_phone)
+            tokens = send_email(username=user.username, email=email, type=user.role)
 
         except Exception as e:
             return Response({"message": f"error {e}"}, status=status.HTTP_400_BAD_REQUEST)
@@ -188,7 +195,7 @@ class ResetEmail(GenericAPIView):
                     user.verified_email = False
                     user.save()
 
-                    Email.send_email(request, user, request.data.get('new_email'), type=user.role, phone_verification=user.verified_phone)
+                    send_email( user.username, request.data.get('new_email'), type=user.role)
 
                     return Response({"message": "sent successfully"}, status=status.HTTP_200_OK)
                 except:

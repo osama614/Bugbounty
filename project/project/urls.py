@@ -42,23 +42,23 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('admin/', include('admin_honeypot.urls', namespace='admin_honeypot')),
     path('bcd729e42e8e00d78fbe8aee7fb9908b/', admin.site.urls),
+    path('notifications/', include('notification.urls')),
     path('api/v1/auth/', include('users.urls',namespace='users')),
     path('api/v1/ads/', include('ads.urls',namespace='ads')),
     path('api/v1/hackers/', include('hackers.urls',namespace='hackers')),
     path('api/v1/programs/', include('programs.urls',namespace='programs')),
-    #url(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+    
    # path('swagger/', schema_view.with_ui('swagger'), name='schema-swagger-ui'),
-   # path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+  
     path('api/v2/auth/', include('djoser.urls')),
-    # path('docs/', include_docs_urls(title="Hacking Technology")),
-    # path('docs2/', get_schema_view(
-    #     title="Hacking Technology",
-    #     description="API for all things …",
-    #     version="1.0.0",
-    #     generator_class=generator
-    # ), name='openapi-schema'),
+    
 ]
 
-#if settings.DEBUG:
-urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+    import debug_toolbar
+    urlpatterns = [
+        path('__debug__/', include(debug_toolbar.urls)),
+    ] + urlpatterns
