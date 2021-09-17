@@ -15,9 +15,9 @@ bin-release/
 
 project/static
 project/media
-project/project/settings.py
-project/project/utilities.py
-migrations/
+#project/project/settings.py
+#project/project/utilities.py
+#migrations/
 __pycache__/
 
 
