@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.tokens import UntypedToken
-#from rest_framework_simplejwt.authentication import JWTTokenUserAuthentication
+from rest_framework_simplejwt.authentication import JWTTokenUserAuthentication
 from rest_framework_simplejwt.state import User
 from channels.middleware import BaseMiddleware
 from channels.auth import AuthMiddlewareStack
