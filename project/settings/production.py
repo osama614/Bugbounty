@@ -7,7 +7,7 @@ DEBUG = True
 
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["hackingt-dev.herokuapp.com"]
 
 MIDDLEWARE.insert(2, 'whitenoise.middleware.WhiteNoiseMiddleware') 
 
