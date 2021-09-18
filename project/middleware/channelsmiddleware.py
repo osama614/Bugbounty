@@ -22,7 +22,7 @@ def get_user(validated_token):
    
     except User.DoesNotExist:
         return AnonymousUser()
-        return None
+  
 
 
 
