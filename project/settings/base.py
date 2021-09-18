@@ -56,6 +56,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'project.urls'
 
+AUTH_USER_MODEL = 'users.User'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -78,7 +80,7 @@ TEMPLATES = [
 ASGI_APPLICATION = "project.asgi.application"
 
 
-AUTH_USER_MODEL = 'users.User'
+
 
 ADMIN_HONEYPOT_EMAIL_ADMINS = False
 
