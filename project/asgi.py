@@ -9,10 +9,9 @@ https://docs.djangoproject.com/en/3.1/howto/deployment/asgi/
 
 import os
 import django
+from django.core.asgi import get_asgi_application
 from channels.auth import AuthMiddlewareStack
 from channels.security.websocket import AllowedHostsOriginValidator
-#from .middleware.channelsmiddleware import JwtAuthMiddlewareStack
-from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from notification.routing import websocket_urlpatterns
 
