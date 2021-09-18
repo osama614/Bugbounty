@@ -21,24 +21,25 @@ from notification.routing import websocket_urlpatterns
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project.settings.production')
 django.setup()
 from .middleware.channelsmiddleware import JwtAuthMiddlewareStack
-application = ProtocolTypeRouter({
-    "http": get_asgi_application(),
-    "websocket": AuthMiddlewareStack(
-        URLRouter(
-           websocket_urlpatterns
-        )
-    
-    ),
-    
-})
+
 # application = ProtocolTypeRouter({
 #     "http": get_asgi_application(),
-#     "websocket": AllowedHostsOriginValidator(
-#             JwtAuthMiddlewareStack(
+#     "websocket": AuthMiddlewareStack(
 #         URLRouter(
 #            websocket_urlpatterns
 #         )
-#     )
+    
 #     ),
     
 # })
+application = ProtocolTypeRouter({
+    "http": get_asgi_application(),
+    "websocket": AllowedHostsOriginValidator(
+            JwtAuthMiddlewareStack(
+        URLRouter(
+           websocket_urlpatterns
+        )
+    )
+    ),
+    
+})
