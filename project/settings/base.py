@@ -79,7 +79,7 @@ TEMPLATES = [
 
 ASGI_APPLICATION = "project.asgi.application"
 
-
+CORS_ALLOW_ALL_ORIGINS = True
 
 
 ADMIN_HONEYPOT_EMAIL_ADMINS = False
