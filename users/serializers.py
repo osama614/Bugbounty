@@ -9,13 +9,33 @@ from rest_framework.validators import UniqueValidator
 #from .models import Role
 from django.utils.text import gettext_lazy as _
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from drf_writable_nested.serializers import WritableNestedModelSerializer
 from programs.models import Program, Level
 from hackers.models import Hacker
 from django.contrib.auth.models import Group
 from hackers.models import Skill, HackerSkills
+from django.contrib.auth.models import update_last_login
+from rest_framework_simplejwt.settings import api_settings
 
 User = get_user_model()
+
+
+class LoginSerializer(TokenObtainPairSerializer):
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        refresh = super().get_token(self.user)
+
+        data['refresh'] = str(refresh)
+        data['access'] = str(refresh.access_token)
+        data['type'] = self.user.role
+
+        if api_settings.UPDATE_LAST_LOGIN:
+            update_last_login(None, self.user)
+
+        return data
 
 class CompanySerializer(serializers.ModelSerializer):
     class Meta:

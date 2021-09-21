@@ -1,10 +1,10 @@
 from django.db.models.aggregates import Count
 from django.http.response import Http404
-from .models import Report, OWASP10, Weakness, Hacker
+from .models import Bounty, Report, OWASP10, Weakness, Hacker
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.generics import  GenericAPIView, ListAPIView, RetrieveAPIView
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from users.permissions import IsVerifiedEmail, IsVerifiedPhone
@@ -255,6 +255,7 @@ class ChangeStateView(GenericAPIView):
        pass
 
 @api_view(["POST", 'PUT'])
+@permission_classes([IsAuthenticated])
 def set_event(request, pk):
 
     try:
@@ -269,7 +270,7 @@ def set_event(request, pk):
         if ser.is_valid():
 
             if ser.validated_data.get('verb') == "comment":
-                pass
+               pass
 
             elif ser.validated_data.get('verb') == "change_level":
                 level = Level.objects.get(pk = ser.validated_data.get('level'))
@@ -285,6 +286,18 @@ def set_event(request, pk):
                 state = ser.validated_data.get('close_state')
                 report.close_state = state
                 report.save()
+            
+            elif ser.validated_data.get('verb') == "set_award":
+                amount = ser.validated_data.get('amount')
+                actor = ser.validated_data.get('actor')
+                timeline = ser.validated_data.get('timeline')
+                if amount and actor and timeline:
+                    if report.time_line == timeline:
+                        payer = Program.objects.get(admin=actor)
+                        report = Report.objects.get(time_line=timeline)
+                        recipient = report.owner.hacker
+                        Bounty.objects.create(amount=amount, payer=payer, recipient=recipient)
+
 
             elif ser.validated_data.get('verb') == "call_admin":
                 pass

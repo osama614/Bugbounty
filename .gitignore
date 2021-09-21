@@ -13,6 +13,10 @@ bin-release/
 *.ipa
 *.apk
 
+manage.py
+project/asgi.py
+project/celery.py
+
 project/static
 project/media
 #project/project/settings.py

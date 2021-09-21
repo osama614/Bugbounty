@@ -10,6 +10,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.validators import MaxValueValidator, MinValueValidator
 from notifications.signals import notify
+import uuid
 
 user = get_user_model()
 
@@ -116,6 +117,14 @@ class Report(models.Model):
 
     def __str__(self):
        return self.title
+
+@receiver(post_save, sender=Report)
+def report_handeler(sender, instance, created, *args, **kwargs):
+    
+    if created:
+        timeline = TimeLine.objects.create()
+        instance.timeline = timeline
+
 
 class Event(models.Model):
     EVENT_TYPE = (
@@ -224,6 +233,15 @@ class HackerPrefrences(models.Model):
     hacker = models.OneToOneField(Hacker, related_name='prefrences',null=True, on_delete=models.CASCADE)
 
 class Bounty(models.Model):
+    STATE_CHOICES = (
+
+         ('accepted', "Accepted"),
+         ('rejected',"Rejected"),
+         ("processing", "Processing"),
+         ("on_hold", "on hold")
+    )
+    transaction_id = models.UUIDField(unique=True, default = uuid.uuid4, editable = False)
+    state = models.CharField(choices=STATE_CHOICES, default="processing", max_length=50)
     amount = models.DecimalField(max_digits = 7, decimal_places = 2)
     payer = models.ForeignKey(Program, related_name="our_bounties" ,blank=True, on_delete=models.SET_NULL, null=True)
     recipient = models.ForeignKey(Hacker, related_name="my_bounties" ,blank=True, on_delete=models.SET_NULL, null=True)

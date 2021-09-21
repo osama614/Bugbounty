@@ -4,7 +4,7 @@ from django.conf import settings
 from django.shortcuts import render
 from rest_framework.generics import CreateAPIView, GenericAPIView
 from rest_framework.views import APIView
-from .serializers import HackerSerializer, RefreshTokenSerializer, PhoneSerializer, CodeSerializer, ProgramSerializer, ResetEmailSerializer1
+from .serializers import HackerSerializer, RefreshTokenSerializer, PhoneSerializer, CodeSerializer, ProgramSerializer, ResetEmailSerializer1, LoginSerializer
 from rest_framework.response import Response
 from rest_framework import serializers, status
 from rest_framework_simplejwt.tokens import RefreshToken, Token
@@ -20,6 +20,7 @@ from rest_framework.schemas.openapi import AutoSchema
 from rest_framework_simplejwt.serializers import TokenVerifySerializer
 from rest_framework.throttling import UserRateThrottle
 from .tasks import send_email
+from rest_framework_simplejwt.views import  TokenObtainPairView
 
 User = get_user_model()
 # Create your views here.
@@ -202,6 +203,12 @@ class ResetEmail(GenericAPIView):
                     Response({"message": "email problem"}, status=status.HTTP_404_NOT_FOUND)
         else:
             return Response({"message": "This email is already in used"}, status=status.HTTP_404_NOT_FOUND)
+
+class LoginView(TokenObtainPairView):
+
+    serializer_class = LoginSerializer
+
+
 
 class LogoutView(GenericAPIView):
     """This API Take a valid refresh token from the current user then he destroy it so
