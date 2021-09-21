@@ -164,11 +164,11 @@ class ReportsActivity(GenericAPIView):
 class ProgramView(GenericAPIView):
     permission_classes = [AllowAny]
     serializer_class = (ProgramViewSerializer,ThankedHackerSerializer)
-    lookup_url_kwarg = "id"
+    lookup_url_kwarg = "username"
 
     def get(self, request, id):
-        id = self.kwargs.get(self.lookup_url_kwarg)
-        program = Program.objects.get(id=id)
+        username = self.kwargs.get(self.lookup_url_kwarg)
+        program = Program.objects.get(username=username)
         if program:
             hackers = program.thanked_hackers.values("avater", "account__id", "account__username").filter(my_points__program=id).annotate(points=Sum("my_points__amount"))
             h_ser = ThankedHackerSerializer(hackers,many=True)

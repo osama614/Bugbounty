@@ -34,6 +34,7 @@ class GenericNotificationRelatedField(serializers.RelatedField):
 
 
 class NotificationSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
     recipient = UserSerializer(User, read_only=True)
     actor = GenericNotificationRelatedField(read_only=True)
     target = GenericNotificationRelatedField(read_only=True)
