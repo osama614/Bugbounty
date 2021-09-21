@@ -32,7 +32,7 @@ class Program(models.Model):
 
     )
     admin = models.OneToOneField(settings.AUTH_USER_MODEL, related_name="program" , on_delete=models.CASCADE)
-    company_name = models.CharField(max_length=100)
+    company_name = models.CharField(max_length=100, unique=True)
     logo = models.ImageField(upload_to=upload_logo, null=True)
     url = models.URLField()
     policy = models.TextField()

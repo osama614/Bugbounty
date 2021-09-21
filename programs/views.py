@@ -166,9 +166,9 @@ class ProgramView(GenericAPIView):
     serializer_class = (ProgramViewSerializer,ThankedHackerSerializer)
     lookup_url_kwarg = "username"
 
-    def get(self, request, id):
+    def get(self, request, *args, **kwargs):
         username = self.kwargs.get(self.lookup_url_kwarg)
-        program = Program.objects.get(username=username)
+        program = Program.objects.get(company_name=username)
         if program:
             hackers = program.thanked_hackers.values("avater", "account__id", "account__username").filter(my_points__program=id).annotate(points=Sum("my_points__amount"))
             h_ser = ThankedHackerSerializer(hackers,many=True)
