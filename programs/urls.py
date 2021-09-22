@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import (AssetDetailView, AssetListView, ChangeLogoView, CompanyInfoView, CompanyPolicy, NavbarView, ProgramInfoView,ReportsAsset,ReportsClosedState, ReportsLevel,
+from .views import (AssetDetailView, AssetListView, ChangeLogoView, CompanyInfoView, CompanyPolicy, NavbarView, ProgramInfoView, ReportDetail,ReportsAsset,ReportsClosedState, ReportsLevel, PReportsListView,
                    ReportsOwasp, ReportsWeakness, ReportsActivity, ProgramView, AnnouncementListView, 
                     AnnouncementDetailView, RewardsView, upload_policy_image)
 
@@ -14,7 +14,8 @@ urlpatterns = [
     path('dashboard/reports-closed-state', ReportsClosedState.as_view(), name='reports-closed_state'),
     path('dashboard/user-activity', ReportsActivity.as_view(), name='user-activity'),
     path('dashboard/user-activity', ReportsActivity.as_view(), name='user-activity'),
-    path('<str:username>/', ProgramView.as_view(), name='program-view'),
+    path('submissions/', PReportsListView.as_view(), name='submissions-program'),
+    path('submissions/<int:pk>', ReportDetail.as_view(), name='report-page'),
     path('dashboard/settings/announcements', AnnouncementListView.as_view(), name='settings-announcement'),
     path('dashboard/settings/announcements/<int:pk>/', AnnouncementDetailView.as_view(), name='action-settings-announcement'),
     path('dashboard/settings/assets', AssetListView.as_view(), name='settings-asset'),
@@ -24,5 +25,6 @@ urlpatterns = [
     path('dashboard/settings/company-policy', CompanyPolicy.as_view(), name='settings-company-policy'),
     path('dashboard/settings/rewards', RewardsView.as_view(), name='settings-rewards'),
     path('navbar/', NavbarView.as_view(), name='navbar'),
-    path('policy-image/', upload_policy_image , name='policy-image')
+    path('policy-image/', upload_policy_image , name='policy-image'),
+    path('<str:username>/', ProgramView.as_view(), name='program-view'),
 ]

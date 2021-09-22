@@ -186,6 +186,7 @@ class LeaderBoardSerializer(serializers.ModelSerializer):
     account = UserSerializer1()
     points_count = serializers.SerializerMethodField()
     my_points = HpointSerializer(many = True)
+    #rank = serializers.SerializerMethodField()
     class Meta:
         model = Hacker
         fields = ["id","avater", "account", "points_count", "my_points"]
@@ -198,6 +199,11 @@ class LeaderBoardSerializer(serializers.ModelSerializer):
        # aggregate(points=Sum('point.amount'))
         #return ern['points']
         return points_count
+
+    # def get_rank(self,obj):
+    #     qs  = Hacker.objects.
+    #     qs =  obj.annotate(Sum('my_points__point__amount'))
+
 
 class ReportSerializer(serializers.ModelSerializer):
     reported_to = ReportedToSerializer()
@@ -234,6 +240,7 @@ class TimelineSerializer(serializers.ModelSerializer):
         fields = ["id","events"]
 
 class ReportPageSerializer(serializers.ModelSerializer):
+    owner = LeaderBoardSerializer()
     reported_to = ReportedToSerializer()
     time_line = TimelineSerializer()
     weakness = serializers.SlugRelatedField(
@@ -253,4 +260,4 @@ class ReportPageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Report
-        fields = ["id","title", "updated_at", "reported_to", "triage_state", "open_state", "close_state", "level", "visibale", "weakness", "owasp10", "description", "time_line"]
+        fields = ["id","title", "updated_at","owner", "reported_to", "triage_state", "open_state", "close_state", "level", "visibale", "weakness", "owasp10", "description", "time_line"]

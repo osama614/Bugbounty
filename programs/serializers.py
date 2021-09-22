@@ -201,3 +201,16 @@ class PolicySerializer(serializers.ModelSerializer):
     class Meta:
         model = Program
         fields = ["policy"]
+
+
+## Submissions ##
+
+class PReportSerializer(serializers.ModelSerializer):
+    owner = HackerDataSerializer()
+    level = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='name'
+     )
+    class Meta:
+        model = Report
+        fields = ["id","title", "updated_at","owner", "reported_to", "triage_state", "open_state", "close_state", "level"]

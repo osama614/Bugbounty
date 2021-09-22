@@ -13,9 +13,9 @@ bin-release/
 *.ipa
 *.apk
 
-manage.py
-project/asgi.py
-project/celery.py
+/manage.py
+/project/asgi.py
+/project/celery.py
 
 project/static
 project/media

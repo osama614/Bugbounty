@@ -122,8 +122,8 @@ class Report(models.Model):
 def report_handeler(sender, instance, created, *args, **kwargs):
     
     if created:
-        timeline = TimeLine.objects.create()
-        instance.timeline = timeline
+        timeline = TimeLine.objects.create(report=instance)
+        
 
 
 class Event(models.Model):

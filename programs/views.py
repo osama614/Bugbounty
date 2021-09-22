@@ -4,9 +4,10 @@ from django.db.models.aggregates import Count, Sum
 from django.http.response import Http404
 from rest_framework import response
 from hackers.models import Report, OWASP10, Weakness
+from hackers.serializers import ReportPageSerializer
 from django.shortcuts import render
 from rest_framework.views import APIView
-from rest_framework.generics import  GenericAPIView, ListAPIView, ListCreateAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import  GenericAPIView, ListAPIView, ListCreateAPIView, RetrieveAPIView, RetrieveUpdateAPIView
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
@@ -14,7 +15,7 @@ from users.permissions import IsVerifiedEmail, IsVerifiedPhone
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from .serializers import (BountyBarSerializer, PNavbarSerializer, PolicySerializer, PostAssetSerializer, ProgramSerializer1, ReportLevelSerializer, ProActivitySerializer, AssetSerializer,
+from .serializers import (BountyBarSerializer, PNavbarSerializer, PReportSerializer, PolicySerializer, PostAssetSerializer, ProgramSerializer1, ReportLevelSerializer, ProActivitySerializer, AssetSerializer,
                             ReportStateSerializer, ProgramViewSerializer, CompanyInfoSerializer, LogoSerializer, RewardSerializer,
                             ThankedHackerSerializer, AnnouncementSerializer, FullAssetSerializer)
 from .models import Level, Program, Asset, Announcement
@@ -28,7 +29,8 @@ from rest_framework_bulk import (
 import os
 from django.utils import timezone
 from django.conf import settings
-
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 
 User = get_user_model()
 # Create your views here.
@@ -170,7 +172,7 @@ class ProgramView(GenericAPIView):
         username = self.kwargs.get(self.lookup_url_kwarg)
         program = Program.objects.get(company_name=username)
         if program:
-            hackers = program.thanked_hackers.values("avater", "account__id", "account__username").filter(my_points__program=id).annotate(points=Sum("my_points__amount"))
+            hackers = program.thanked_hackers.values("avater", "account__id", "account__username").filter(my_points__program=program.id).annotate(points=Sum("my_points__point__amount"))
             h_ser = ThankedHackerSerializer(hackers,many=True)
             p_ser = ProgramViewSerializer(program)
             data = {
@@ -180,6 +182,7 @@ class ProgramView(GenericAPIView):
             return Response(data, status=status.HTTP_200_OK)
         else :
             return Response("Not Found", status=status.HTTP_404_NOT_FOUND)
+  
 
 
 class ChangeLogoView(GenericAPIView):
@@ -239,7 +242,25 @@ class RewardsView(ListBulkCreateUpdateDestroyAPIView):
 
         return self.request.user.program.bounty_bars
 
+class PReportsListView(ListAPIView):
+    permission_classes = [IsAuthenticated, IsVerifiedEmail]
+    serializer_class = PReportSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ['level', 'open_state', "close_state", "triage_state"]
+    search_fields = ['title']
 
+    def get_queryset(self):
+        user = self.request.user
+        program = user.program
+        return Report.objects.filter(reported_to=program).all()
+
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+class ReportDetail(RetrieveAPIView):
+    permission_classes = [IsAuthenticated, IsVerifiedEmail]
+    serializer_class = ReportPageSerializer
+    queryset = Report.objects.all()
+    lookup_url_kwarg = 'pk'
 
 # class RewardsView(GenericAPIView):
 #     serializer_class = RewardSerializer
