@@ -355,27 +355,26 @@ def OWASP10View(request):
 def WeaknessView(request):
     
 
-    if request.method == "GET":
-        weaknesses = Weakness.objects.all()
-        if weaknesses.count() <= 0:
-            return Response({"error": "Not Found", "message":"There is not any Weakness on the DB, yet!"} , status=status.HTTP_404_NOT_FOUND)
-        ser = WeaknessSerializer(weaknesses, many=True)
+    # if request.method == "GET":
+    #     weaknesses = Weakness.objects.all()
+    #     if weaknesses.count() <= 0:
+    #         return Response({"error": "Not Found", "message":"There is not any Weakness on the DB, yet!"} , status=status.HTTP_404_NOT_FOUND)
+    #     ser = WeaknessSerializer(weaknesses, many=True)
 
-    # weaknesses = db.get_all()
-    # data = []
-    # for i in weaknesses:
+    weaknesses = db.get_all()
+    data = []
+    for i in weaknesses:
        
-    #    #weakness = i.to_dict()
-    #    weakness_dict = {
-    #        "cwe_id" : i.cwe_id,
-    #        "weakness_name": i.name
-    #    }
-    #    Weakness.objects.create(name=i.name, cwe_id=i.cwe_id)
-    #    data.append(weakness_dict)
-    #print(weaknesses)
-    #data = weaknesses.to_dict()
+       #weakness = i.to_dict()
+       weakness_dict = {
+           "cwe_id" : i.cwe_id,
+           "weakness_name": i.name
+       }
+       Weakness.objects.create(name=i.name, cwe_id=i.cwe_id)
+       data.append(weakness_dict)
+    
 
-    return Response(ser.data , status=status.HTTP_200_OK)
+    return Response(data , status=status.HTTP_200_OK)
 
 class SubmitReport(GenericAPIView):
 
