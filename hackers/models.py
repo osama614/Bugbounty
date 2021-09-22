@@ -52,6 +52,7 @@ class Badge(models.Model):
 
 class Weakness(models.Model):
     name = models.CharField(max_length=150)
+    cwe_id = models.IntegerField(unique=True)
 
     class Meta:
         verbose_name = _('Weakness')
@@ -107,7 +108,7 @@ class Report(models.Model):
     submitted_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     closed_at = models.DateTimeField(auto_now_add=True)
-    contributors = models.ManyToManyField(user, related_name='reports_work')
+    contributors = models.ManyToManyField(user, related_name='reports_work', blank=True)
     visibale = models.BooleanField(default=False)
 
     class Meta:

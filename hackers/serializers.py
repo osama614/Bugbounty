@@ -1,3 +1,4 @@
+
 from programs.models import Level, Program
 from phonenumber_field.serializerfields import PhoneNumberField
 from phonenumber_field.validators import ValidationError
@@ -5,7 +6,7 @@ from phonenumber_field.validators import ValidationError
 from rest_framework import fields, serializers
 from django.contrib.auth import get_user_model
 from rest_framework.validators import UniqueValidator
-from .models import Badge, Hacker, Skill, Report, Bounty, Point, HackerPoint, Event, TimeLine
+from .models import OWASP10, Badge, Hacker, Skill, Report, Bounty, Point, HackerPoint, Event, TimeLine, Weakness
 from drf_writable_nested.serializers import WritableNestedModelSerializer
 from django.db.models import Max, Sum
 from rest_framework_bulk import (
@@ -261,3 +262,20 @@ class ReportPageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Report
         fields = ["id","title", "updated_at","owner", "reported_to", "triage_state", "open_state", "close_state", "level", "visibale", "weakness", "owasp10", "description", "time_line"]
+
+### Submit Report Form ###.
+class OWASPSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OWASP10
+        fields = "__all__"
+
+class WeaknessSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Weakness
+        fields = "__all__"
+
+class PostReportSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Report
+        fields = ["title","owner", "reported_to", "level", "weakness","owasp10", "description", "asset"]

@@ -1,11 +1,11 @@
 from django.urls import path
-from .views import (ChangeAvaterView, DashboardView, NavbarView, ReportsLevel, ReportsOwasp, ReportsWeakness, ReportsListView,HackerProfile,
-                    ReportsActivity, ProgramsListView, SkillsView, UpdateProfileView, ActivityView, LeaderBoardView, ReportDetail, set_event)
+from .views import (ChangeAvaterView, DashboardView, NavbarView, OWASP10View, ReportsLevel, ReportsOwasp, ReportsWeakness, ReportsListView,HackerProfile,
+                    ReportsActivity, ProgramsListView, SkillsView, SubmitReport, UpdateProfileView, ActivityView, LeaderBoardView, ReportDetail, WeaknessView, set_event)
 
 
 app_name = "hackers"
 urlpatterns = [
-    path('<str:username>', HackerProfile.as_view(), name='profile'),
+   
     path('dashboard/user-info', DashboardView.as_view(), name='user-info'),
     path('dashboard/reports-levels', ReportsLevel.as_view(), name='reports-levels'),
     #path('dashboard/reports-10OWASP', reports_10OWASP, name='reports-10OWASP'),
@@ -23,5 +23,9 @@ urlpatterns = [
     path('submissions/', ReportsListView.as_view(), name='submissions'),
     path('submissions/<int:pk>', ReportDetail.as_view(), name='report-page'),
     path('submissions/<int:pk>/events', set_event, name='report-page'),
+    path('weakness/', WeaknessView, name='weakness'),
+    path('10-owasp/', OWASP10View, name='10-owasp'),
+    path('<str:username>', HackerProfile.as_view(), name='profile'),
+    path('reports/', SubmitReport.as_view(), name='Submit-Report'),
 
 ]

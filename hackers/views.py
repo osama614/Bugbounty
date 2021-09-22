@@ -1,3 +1,4 @@
+from django.db import models
 from django.db.models.aggregates import Count
 from django.http.response import Http404
 from .models import Bounty, Report, OWASP10, Weakness, Hacker
@@ -11,9 +12,9 @@ from users.permissions import IsVerifiedEmail, IsVerifiedPhone
 from rest_framework.permissions import IsAuthenticated
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from .serializers import (DashHackerSerializer, DashUserSerializer, DashFilterSerializer, ActivitySerializer, ReportSerializer,
+from .serializers import (DashHackerSerializer, DashUserSerializer, DashFilterSerializer, ActivitySerializer, OWASPSerializer, PostReportSerializer, ReportSerializer,
                           HNavbarSerializer, SettingsSkillSerializer, ThankerSerializer, ProgramSerializer, ProfileSerializer,
-                          AvaterSerializer, LeaderBoardSerializer, ReportPageSerializer, EventSerializer, EventSerializer2)
+                          AvaterSerializer, LeaderBoardSerializer, ReportPageSerializer, EventSerializer, EventSerializer2, WeaknessSerializer)
 
 from programs.models import Level, Program
 from programs.serializers import ProgramSerializer1
@@ -26,6 +27,11 @@ from rest_framework_bulk import (
     ListBulkCreateUpdateDestroyAPIView,
 )
 
+from cwe import Database
+
+# initiate CWE DataBase
+
+db = Database()
 
 User = get_user_model()
 # Create your views here.
@@ -329,3 +335,54 @@ class LeaderBoardView(GenericAPIView):
         ser = LeaderBoardSerializer(hackers, many=True)
 
         return Response(ser.data, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+def OWASP10View(request):
+    
+
+
+    if request.method == "GET":
+        owasps = OWASP10.objects.all()
+        if owasps.count() <= 0:
+            return Response({"error": "Not Found", "message":"There is not any OWASP on the DB, yet!"} , status=status.HTTP_404_NOT_FOUND)
+        ser = OWASPSerializer(owasps, many=True)
+
+    return Response(ser.data , status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+def WeaknessView(request):
+    
+
+    if request.method == "GET":
+        weaknesses = Weakness.objects.all()
+        if weaknesses.count() <= 0:
+            return Response({"error": "Not Found", "message":"There is not any Weakness on the DB, yet!"} , status=status.HTTP_404_NOT_FOUND)
+        ser = WeaknessSerializer(weaknesses, many=True)
+
+    # weaknesses = db.get_all()
+    # data = []
+    # for i in weaknesses:
+       
+    #    #weakness = i.to_dict()
+    #    weakness_dict = {
+    #        "cwe_id" : i.cwe_id,
+    #        "weakness_name": i.name
+    #    }
+    #    Weakness.objects.create(name=i.name, cwe_id=i.cwe_id)
+    #    data.append(weakness_dict)
+    #print(weaknesses)
+    #data = weaknesses.to_dict()
+
+    return Response(ser.data , status=status.HTTP_200_OK)
+
+class SubmitReport(GenericAPIView):
+
+    def post(self, request):
+
+        ser = PostReportSerializer(data = request.data)
+        if ser.is_valid():
+            ser.save()
+            return Response(ser.data, status=status.HTTP_201_CREATED)
+        return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
