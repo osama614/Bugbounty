@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import  User
+from .models import  User, Session
 from django.contrib.auth.admin import UserAdmin
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
 from rest_framework_simplejwt.token_blacklist.admin import OutstandingTokenAdmin
@@ -15,6 +15,11 @@ class UserAdmin(admin.ModelAdmin):
     list_filter = ("email", "username", "phone_number")
     search_fields =("email", "username", "phone_number")
    
+@admin.register(Session)
+class SessionAdmin(admin.ModelAdmin):
+    list_display = ("ip_address", "user_agent", "location", "owner")
+    list_filter = ("ip_address", "user_agent", "location", "owner")
+    search_fields =("ip_address", "user_agent", "location")
 
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
 from rest_framework_simplejwt.token_blacklist.admin import OutstandingTokenAdmin

@@ -1,7 +1,7 @@
 
 
 from django.urls import path
-from .views import RegisterHacker, VerifyEmail, LogoutView,  resend_code, ResendEmail, PhoneVerification, CodeVerification, RegisterProgram, ResetEmail, LoginView
+from .views import RegisterHacker, SessionView, VerifyEmail, LogoutView,  resend_code, ResendEmail, PhoneVerification, CodeVerification, RegisterProgram, ResetEmail, LoginView
 from rest_framework_simplejwt.views import TokenVerifyView, TokenObtainPairView, TokenRefreshView
 
 app_name = "users"
@@ -17,5 +17,6 @@ urlpatterns = [
     #path('hackers/login/', TokenObtainPairView.as_view(), name='login'),
     path('hackers/login/', LoginView.as_view(), name='login'),
     path('hackers/refresh/', TokenRefreshView.as_view(), name='refresh'),
-    path('hackers/logout/', LogoutView.as_view(), name='logout')
+    path('hackers/logout/', LogoutView.as_view(), name='logout'),
+    path('sessions/', SessionView.as_view(), name='sessions')
 ]

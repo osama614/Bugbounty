@@ -24,6 +24,7 @@ urlpatterns = [
     path('submissions/<int:pk>', ReportDetail.as_view(), name='report-page'),
     path('submissions/<int:pk>/events', set_event, name='report-page'),
     path('weakness/', WeaknessView, name='weakness'),
+    #path('levels/', WeaknessView, name='levels'),
     path('10-owasp/', OWASP10View, name='10-owasp'),
     path('<str:username>', HackerProfile.as_view(), name='profile'),
     path('reports/', SubmitReport.as_view(), name='Submit-Report'),

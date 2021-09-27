@@ -62,4 +62,4 @@ class Session(models.Model):
 
 
     def __str__(self):
-       return f"{self.owner.username}'s session"
+       return f" {self.owner.username}'s session"

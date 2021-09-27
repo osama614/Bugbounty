@@ -1,10 +1,11 @@
 
+from .models import Session
 from django.conf import settings
 #from .models import Role
 from django.shortcuts import render
-from rest_framework.generics import CreateAPIView, GenericAPIView
+from rest_framework.generics import CreateAPIView, GenericAPIView, ListAPIView
 from rest_framework.views import APIView
-from .serializers import HackerSerializer, RefreshTokenSerializer, PhoneSerializer, CodeSerializer, ProgramSerializer, ResetEmailSerializer1, LoginSerializer
+from .serializers import HackerSerializer, RefreshTokenSerializer, PhoneSerializer, CodeSerializer, ProgramSerializer, ResetEmailSerializer1, LoginSerializer, SessionSerializer
 from rest_framework.response import Response
 from rest_framework import serializers, status
 from rest_framework_simplejwt.tokens import RefreshToken, Token
@@ -21,6 +22,7 @@ from rest_framework_simplejwt.serializers import TokenVerifySerializer
 from rest_framework.throttling import UserRateThrottle
 from .tasks import send_email
 from rest_framework_simplejwt.views import  TokenObtainPairView
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
 User = get_user_model()
 # Create your views here.
@@ -208,7 +210,34 @@ class LoginView(TokenObtainPairView):
 
     serializer_class = LoginSerializer
 
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data, context={'request': request})
 
+        try:
+            serializer.is_valid(raise_exception=True)
+        except TokenError as e:
+            raise InvalidToken(e.args[0])
+
+        return Response(serializer.validated_data, status=status.HTTP_200_OK)
+
+    # def post(self, request, *args, **Kwargs):
+    #     user = request.user
+    #     print('00user')
+    #     return Response("'0'")
+        
+
+class SessionView(ListAPIView):
+
+    serializer_class = SessionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+
+        user = self.request.user
+
+        sessions = Session.objects.filter(owner=user).all()
+
+        return sessions
 
 class LogoutView(GenericAPIView):
     """This API Take a valid refresh token from the current user then he destroy it so

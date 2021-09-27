@@ -8,6 +8,7 @@ environ.Env.read_env()
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+print(BASE_DIR)
 
 
 
@@ -139,7 +140,7 @@ DJOSER = {
 
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=20),
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
@@ -159,7 +160,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-
+GEOIP_PATH = BASE_DIR / "geoip"
 
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_ACCEPT_CONTENT = ['application/json']

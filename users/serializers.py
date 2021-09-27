@@ -1,12 +1,13 @@
 
 
+from datetime import date
 from django.db.models import fields
 from phonenumber_field.serializerfields import PhoneNumberField
 from phonenumber_field.validators import ValidationError
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from rest_framework.validators import UniqueValidator
-#from .models import Role
+from .models import Session
 from django.utils.text import gettext_lazy as _
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -17,10 +18,16 @@ from django.contrib.auth.models import Group
 from hackers.models import Skill, HackerSkills
 from django.contrib.auth.models import update_last_login
 from rest_framework_simplejwt.settings import api_settings
+from django.contrib.gis.geoip2 import GeoIP2
+from django.utils import timezone
+
 
 User = get_user_model()
 
-
+class SessionSerializer(serializers.ModelSerializer): 
+    class Meta:
+        model = Session
+        fields = "__all__"
 class LoginSerializer(TokenObtainPairSerializer):
 
     def validate(self, attrs):
@@ -32,6 +39,18 @@ class LoginSerializer(TokenObtainPairSerializer):
         data['access'] = str(refresh.access_token)
         data['type'] = self.user.role
 
+        g = GeoIP2()
+        request = self.context['request']
+        ip = request.META.get('REMOTE_ADDR')
+        user_agent = request.META.get('HTTP_USER_AGENT')
+        if ip == "127.0.0.1":
+        
+            Session.objects.create(owner=self.user, ip_address=ip, location="EG, Cairo", user_agent=user_agent, date=timezone.now())
+        else:
+            city = g.city(ip)["city"]
+            country_code = g.country_code(ip)
+            country = f"{country_code}, {city}"
+            Session.objects.create(owner=self.user, ip_address=ip, location=country, user_agent=user_agent, date=timezone.now())
         if api_settings.UPDATE_LAST_LOGIN:
             update_last_login(None, self.user)
 
@@ -191,6 +210,7 @@ class CodeSerializer(serializers.Serializer):
     code = serializers.CharField(max_length=6, min_length=6)
     phone_number = PhoneNumberField(required=True, validators=[UniqueValidator(queryset=User.objects.all())])
 
+
 class ResetEmailSerializer1(serializers.Serializer):
     current_password = serializers.CharField(required = True, style={"input_type": "password"})
     new_email = serializers.EmailField(required = True)
@@ -202,6 +222,7 @@ class ResetEmailSerializer1(serializers.Serializer):
             if User.objects.filter(email=value).exists():
                 raise serializers.ValidationError("This email is already in used")
             return value
+
 # class NavbarSerializer(serializers.ModelSerializer):
 
 #     class Meta:
