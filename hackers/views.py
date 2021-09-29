@@ -320,6 +320,9 @@ class ActivityView(GenericAPIView):
     This api is responsible for returning all the user on the website.
     """
     #permission_classes = [IsAuthenticated, IsVerifiedEmail, IsVerifiedPhone]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    #filterset_fields = ['program_assets__type', 'status']
+    search_fields = ['title']
     serializer_class = ActivitySerializer
     def get(self, request):
         reports = Report.objects.filter(visibale=True, triage_state="accepted", open_state="done").all()
