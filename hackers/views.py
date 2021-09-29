@@ -315,20 +315,20 @@ def set_event(request, pk):
         #return Response({"message": "sorry, something went wrong !"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ActivityView(GenericAPIView):
+class ActivityView(ListAPIView):
     """
     This api is responsible for returning all the user on the website.
     """
-    #permission_classes = [IsAuthenticated, IsVerifiedEmail, IsVerifiedPhone]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     #filterset_fields = ['program_assets__type', 'status']
     search_fields = ['title']
     serializer_class = ActivitySerializer
-    def get(self, request):
+    def get_queryset(self, request):
         reports = Report.objects.filter(visibale=True, triage_state="accepted", open_state="done").all()
-        ser = ActivitySerializer(reports, many=True)
+       # ser = ActivitySerializer(reports, many=True)
 
-        return Response(ser.data, status=status.HTTP_200_OK)
+        #return Response(ser.data, status=status.HTTP_200_OK)
+        return reports
 
 
 class LeaderBoardView(GenericAPIView):
