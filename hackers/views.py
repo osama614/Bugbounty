@@ -323,7 +323,7 @@ class ActivityView(ListAPIView):
     #filterset_fields = ['program_assets__type', 'status']
     search_fields = ['title']
     serializer_class = ActivitySerializer
-    def get_queryset(self, request):
+    def get_queryset(self):
         reports = Report.objects.filter(visibale=True, triage_state="accepted", open_state="done").all()
        # ser = ActivitySerializer(reports, many=True)
 
